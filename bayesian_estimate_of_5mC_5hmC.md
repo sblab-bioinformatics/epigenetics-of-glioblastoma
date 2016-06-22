@@ -39,8 +39,8 @@ rather than a C and G pair.
 ```
 intersectBed -a hg19.allCpG.bed.gz -b $bdg -wa -wb -sorted \
 | awk -v OFS="\t" '{print $1, $2, $3, $12, $13}' \
-| groupBy -i - -g 1,2,3 -c 4,5 -o sum,sum \
-| awk -v OFS="\t" '{if($7 > 1) print $2, $3, $4, $5, $6}' > $out
+| groupBy -i - -g 1,2,3 -c 4,5,1 -o sum,sum,count \
+| awk -v OFS="\t" '{if($6 > 1) print $1, $2, $3, $4, $5}' > $out
 
 intersectBed -a hg19.allCpG.bed.gz -b $bdg -wa -wb -sorted \
 | awk -v OFS="\t" '{print $1, $2, $3, $12, $13, $4}' \
