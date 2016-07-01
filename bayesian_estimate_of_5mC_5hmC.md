@@ -4,7 +4,7 @@
     - [Principle of the method](#principle-of-the-method)
     - [Preparing input data](#preparing-input-data)
     - [Prior distributions](#prior-distributions)
-    - [Posterior distributions of margin and tumor 5mC and their difference](#posterior-distributions-of-margin-and-tumor-5mc-and-their-difference)
+    - [Posterior distributions of 5mC in margin and tumor and their difference](#posterior-distributions-of-5mc-in-margin-and-tumor-and-their-difference)
     - [Inspecting the posterior distributions](#inspecting-the-posterior-distributions)
 
 <!-- /MarkdownTOC -->
@@ -212,8 +212,8 @@ ggsave('bimodalBetaPrior_5mc_margin_tumor.png', w= 14, h= 12, units= 'cm')
 
 <img src="figures/bimodalBetaPrior_5mc_margin_tumor.png" width="500">
 
-Posterior distributions of margin and tumor 5mC and their difference
---------------------------------------------------------------------
+Posterior distributions of 5mC in margin and tumor and their difference
+-----------------------------------------------------------------------
 
 At each CpG, the tumor and margin priors are updated using the observed data. 
 From the beta posteriors for margin and tumor a number of datapoints are sampled to obtain an empyrical distribution.
