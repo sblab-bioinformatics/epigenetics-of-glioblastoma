@@ -1,0 +1,55 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+% Put one equation per page so that when you convert to figure you have one equation per figure.
+% 
+% Compile to pdf with:
+% pdflatex equations.tex 
+% 
+% Put one equation per figure:
+% convert -density 200 -background white -alpha remove -trim equations.pdf equations.%0d.jpg
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\begin{equation*}
+Prior_{margin}(5mC) = 
+\begin{cases} 
+Beta_{low}(\alpha_{low}, \beta_{low}), & \mbox{with } \mbox{ $\pi_{margin}$ } \\
+\\
+Beta_{high}(\alpha_{high}, \beta_{high}), & \mbox{with } \mbox{ $1 - \pi_{margin}$ }
+\end{cases}
+\end{equation*}
+
+\begin{equation*}
+\pi_{margin} = N_{n < cutoff} / N
+\end{equation*}
+
+\newpage
+
+\begin{equation*}
+Posterior_{margin}(5mC) = 
+\begin{cases} 
+Beta(y_{met} + \alpha_{low}, y_{unmet} + \beta_{low}) , & \mbox{with } \mbox{ $\pi_{margin}$ } \\
+\\
+Beta(y_{met} + \alpha_{high}, y_{unmet} + \beta_{high}), & \mbox{with } \mbox{ $1 - \pi_{margin}$ }
+\end{cases}
+\end{equation*}
+
+\newpage
+
+\begin{equation*}
+Posterior(\Delta 5mC_{tumor - margin}) = Posterior_{tumor}(5mC) - Posterior_{margin}(5mC)
+\end{equation*}
+
+\newpage
+
+\begin{equation*}
+\Delta 5mC_{tum - mar} = \frac{\#M_{tum}}{(\#M_{tum} + \#U_{tum})} - 
+    \frac{\#M_{mar}}{(\#M_{mar} + \#U_{mar})}
+\end{equation*}
+
+\end{document}
