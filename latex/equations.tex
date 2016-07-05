@@ -15,6 +15,18 @@
 
 \pagenumbering{gobble}
 
+% Bayes theorem
+\begin{equation*}
+P(5mC | y_{met}, y_{unmet}) = \frac{ P(y_{met}, y_{unmet} | 5mC) P(5mC)} { P(y_{met}, y_{unmet}) }
+\end{equation*}
+
+% Difference
+\newpage
+\begin{equation*}
+Posterior(\Delta 5mC_{tumor - margin}) = Posterior_{tumor}(5mC) - Posterior_{margin}(5mC)
+\end{equation*}
+
+\newpage
 \begin{equation*}
 Prior_{margin}(5mC) = 
 \begin{cases} 
@@ -39,14 +51,8 @@ Beta(y_{met} + \alpha_{high}, y_{unmet} + \beta_{high}), & \mbox{with } \mbox{ $
 \end{cases}
 \end{equation*}
 
-\newpage
-
-\begin{equation*}
-Posterior(\Delta 5mC_{tumor - margin}) = Posterior_{tumor}(5mC) - Posterior_{margin}(5mC)
-\end{equation*}
 
 \newpage
-
 \begin{equation*}
 \Delta 5mC_{tum - mar} = \frac{\#M_{tum}}{(\#M_{tum} + \#U_{tum})} - 
     \frac{\#M_{mar}}{(\#M_{mar} + \#U_{mar})}

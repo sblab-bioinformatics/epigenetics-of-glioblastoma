@@ -3,9 +3,10 @@
 - [A Bayesian estimate of the 5hmC bsgin](#a-bayesian-estimate-of-the-5hmc-bsgin)
     - [Prepare data](#prepare-data)
     - [Prepare prior distribution](#prepare-prior-distribution)
-    - [Posterior 5mC \(oxBS\) and 5mC+5hmC \(BS\)](#posterior-5mc-oxbs-and-5mc5hmc-bs)
-    - [5hmC: Posterior difference](#5hmc-posterior-difference)
-    - [Inspection of 5hmC](#inspection-of-5hmc)
+    - [Posterior 5mC \(oxBS\) and 5hmC \(BS - oxBS\)](#posterior-5mc-oxbs-and-5hmc-bs---oxbs)
+    - [Convert quantile to a p-value stats. The smallest the more far in the tail](#convert-quantile-to-a-p-value-stats-the-smallest-the-more-far-in-the-tail)
+    - [the zero point is.](#the-zero-point-is)
+    - [NB: Previous file overwritten!](#nb-previous-file-overwritten)
 
 <!-- /MarkdownTOC -->
 
@@ -129,8 +130,10 @@ ggsave('bimodalBetaPrior_bs_oxbs_margin.png', w= 14, h= 12, units= 'cm')
 ```
 
 
-Posterior 5mC (oxBS) and 5mC+5hmC (BS)
---------------------------------------
+Posterior 5mC (oxBS) and 5hmC (BS - oxBS)
+----------------------------------------
+
+The posterior 5mC is redundant as it is the same as in [bayesian_estimate_of_5mC_5hmC](bayesian_estimate_of_5mC_5hmC.md)
 
 ```R
 Mode<- function(x) {
@@ -232,7 +235,7 @@ xnames<-  apply(expand.grid(cnames, slots), 1, paste, collapse= '_')
 setnames(postDT, names(postDT), xnames)
 write.table(x= postDT, file= 'postDT.tmp.txt', row.names= FALSE, quote= FALSE)
 
-# You might want to quit R and reload this obj to clean up the memory
+# You might want to quit R and reload this obj to clean up the memory. You need to reload also bdg
 postDT<- fread('postDT.tmp.txt')
 
 # Add to posterior datatable the position and raw counts
@@ -285,15 +288,70 @@ write.table(x=
 system('gzip posterior_*.txt')
 ```
 
+Probability of the posterior distribution to include zero (*i.e.* probability that the difference between is not different from zero). 
 
-5hmC: Posterior difference
---------------------------
+```
+<!--
+This part should be included in the calculation of the posterior above!
+-->
+```R
+R
+library(data.table)
+library(scales)
+library(ggplot2)
+library(parallel)
+
+xfile<- 'posterior_5hmC_margin.txt'
+postDiff<- fread(sprintf('zcat %s.gz', xfile))
+
+inv.logit<- function(x){
+    exp(x)/(1+exp(x))
+}
+getQAtZero<- function(x, p){
+    ## Fit a (quasi)binomial regression as prob ~ quantile. 
+    ## Then extract the probability where the quantile is zero.
+    xlm<- glm(p ~ x, family= quasibinomial)
+    qz<- inv.logit(xlm$coefficients[1])
+    return(qz)
+}
+dat<- as.matrix((postDiff[, list(p0.005, p0.025, p0.25, p0.5, p0.75, p0.975, p0.995)]))
+p<- c(0.005, 0.025, 0.25, 0.5, 0.75, 0.975, 0.995)
+clus<- makeCluster(24)
+clusterExport(clus, list('getQAtZero', 'inv.logit', 'p'))
+q0<- parRapply(clus, dat, function(x) getQAtZero(x, p))
+stopCluster(clus)
+
+## Convert quantile to a p-value stats. The smallest the more far in the tail
+## the zero point is.
+postDiff[, prob0 := ifelse(q0 > 0.5, 1-q0, q0)]
+
+## NB: Previous file overwritten!
+write.table(x= postDiff, file= xfile, row.names= FALSE, quote= FALSE, sep= '\t')
+system(sprintf('gzip %s', xfile))
+```
 
 Inspection of 5hmC
 ------------------
 
 
+```R
+R
+library(data.table)
+library(scales)
+library(ggplot2)
 
+postDiff<- fread('zcat posterior_5hmC_margin.txt.gz')
+xn<- seq(1, nrow(postDiff), length.out= 50000)
+gg<- ggplot(data= postDiff[xn, ], aes(x= 100 * ((cnt_met_bs/cnt_tot_bs) - (cnt_met_oxbs/cnt_tot_oxbs)), y= mode,
+    colour= ifelse(cnt_tot_oxbs + cnt_tot_bs > 200, 200, cnt_tot_oxbs + cnt_tot_bs))) +
+    scale_colour_gradient2('Read count', low=muted("blue"), high=muted("red"), midpoint= 75, mid= muted('blue')) +
+    geom_point(alpha= 0.50, size= 0.15) +
+    geom_abline(intercept= 0, slope= 1, linetype= 'dashed') +
+    xlab('Observed 5hmC difference') +
+    ylab('Bayesian posterior 5hmC') +
+    ggtitle('5hmC in margin\nObserved from raw counts vs Bayesian estimate')
+ggsave('posterior_difference_h5mc_margin.png', w= 14, h= 12, units= 'cm')
+```
 
 
 

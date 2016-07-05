@@ -39,28 +39,32 @@ differences. The posterior distribution thus obtained can be directly used to
 estimate *credibility intervals*, that is the interval which contains the true methylation (or difference in methylation) with a given 
 probability.
 
-The genome wide distribution of 5mC at CpG sites is markedly bimodal in both tumor or margin (see below). Therefore, the prior 
-distribution reflecting this bimodality was approximated by a mixture of two beta distributions, one beta distribution for the lower mode 
-and one for the upper mode. These two distributions are mixed according to the number of CpG whose methylation falls above or below a given cut-off.
-Since the beta distribution is defined between 0 and 1 and can take different shapes depending on the two parameters α and β, it seems a natural choice to model the distribution of 5mC. The prior for the *margin* is represented here below (the prior for the tumor is analogous):
+In this context, the probability of methylation percentage at a given CpG in a library (either tumor or margin) is 
 
+<img src="latex/equations.0.jpg" width="500">
 
-<img src="latex/equations.0.jpg" width="600">
-
-Where α<sub>low</sub>, β<sub>low</sub> and α<sub>high</sub>, β<sub>high</sub> are the beta parameters of the two distributions. π 
-is the proportion of CpG below the chosen cut-off.
-
-The posterior distribution of 5mC at each CpG is a beta distribution obtained by updating the prior with the observed read counts:
+where *y<sub>met</sub>* and *y<sub>unmet</sub>* are the observed counts methylated and un-methylated at the tested CpG.
+The difference in methylation can be obtained by subtracting the margin from tumor:
 
 <img src="latex/equations.1.jpg" width="700">
 
-*y<sub>met</sub>* and *y<sub>unmet</sub>* are the observed counts methylated and un-methylated at the tested CpG. 
-The posterior distribution can be used directly to obtain the most likely value of methylation (*e.g.* by extracting 
-the mean, median or mode) and to produce credibility intervals. The difference in methylation between tumor and
-margin is obtained by subtracting one posterior from the other. Again, the resulting distribution can be used to 
-extract statistics of interest like mode and quantiles of the differential methylation:
+The genome wide distribution of 5mC at CpG sites is markedly bimodal in both tumor or margin (see below). Therefore, the prior 
+distribution reflecting this bimodality was approximated by a mixture of two beta distributions, one beta distribution for the lower mode 
+and one for the upper mode. These two distributions are mixed according to the number of CpG whose methylation falls above or below a given cut-off.
+Since the beta distribution is defined between 0 and 1 and can take different shapes depending on the two parameters α and β, the beta seems a natural choice to model the distribution of 5mC. The prior for the *margin* is represented here below (the prior for the tumor is analogous):
 
-<img src="latex/equations.2.jpg" width="700">
+<img src="latex/equations.2.jpg" width="600">
+
+where π is the proportion of CpG below the chosen cut-off.
+
+The posterior distribution of 5mC at each CpG is a beta distribution obtained by updating the prior with the observed read counts:
+
+<img src="latex/equations.3.jpg" width="700">
+
+The posterior distribution can be used directly to obtain the most likely value of methylation (*e.g.* by extracting 
+the mean, mode and the quantiles of interest) and to produce credibility intervals. The difference in methylation between tumor and
+margin is obtained by subtracting one posterior from the other. Again, the resulting distribution can be used to 
+extract statistics of interest like mode and quantiles of the differential methylation
 
 As shown below, priors, posteriors and differences are computed by simulation.
 
@@ -184,6 +188,16 @@ pct_met<- bdg[cnt_met_tum/cnt_tot_tum <= CUTOFF, cnt_met_tum/cnt_tot_tum]
 priorBetaParam_T_Low<- fitdist(pct_met[sample(1:length(pct_met), 
     size= length(pct_met)/100)], 'beta', method= 'qme', probs= c(0.1, 0.9))
 ```
+
+<!-- These or similar params should be used for simulations -->
+                  
+       Parameter | Margin | Tumor 
+---------------- | ------ | -----
+α<sub>low</sub>  | 0.25   | 0.23
+β<sub>low</sub>  | 1.48   | 1.50
+α<sub>high</sub> | 11.72  | 12.56
+β<sub>high</sub> | 4.97   | 3.24
+
 
 In order to plot and make use of the prior distributions we sample a number of data points from each pair (high and low).
 The number of data points sampled from the high and low distributions is proportional to the number
@@ -374,6 +388,59 @@ write.table(x=
 system('gzip posterior_5mC*.txt')
 ```
 
+For ease of interpretation of the difference between tumor and margin, we calculate the probability of the
+posterior distribution to include zero (*i.e.* probability that the difference between is not different from zero). 
+This statistics is calculated for each CpG by regressing the probabilities on the quantiles by means of a binomial regression and then extracting 
+the probability where the sample quantile is zero.
+
+```R
+R
+library(data.table)
+library(scales)
+library(ggplot2)
+library(parallel)
+
+postDiff<- fread('zcat posterior_5mC_tum-mar.txt.gz')
+
+inv.logit<- function(x){
+    exp(x)/(1+exp(x))
+}
+getQAtZero<- function(x, p){
+    ## Fit a (quasi)binomial regression as prob ~ quantile. 
+    ## Then extract the probability where the quantile is zero.
+    xlm<- glm(p ~ x, family= quasibinomial)
+    qz<- inv.logit(xlm$coefficients[1])
+    return(qz)
+}
+dat<- as.matrix((postDiff[, list(p0.005, p0.025, p0.25, p0.5, p0.75, p0.975, p0.995)]))
+p<- c(0.005, 0.025, 0.25, 0.5, 0.75, 0.975, 0.995)
+clus<- makeCluster(24)
+clusterExport(clus, list('getQAtZero', 'inv.logit', 'p'))
+q0<- parRapply(clus, dat, function(x) getQAtZero(x, p))
+stopCluster(clus)
+
+## Convert quantile to a p-value stats. The smallest the more far in the tail
+## the zero point is.
+postDiff[, pqAt0 := ifelse(q0 > 0.5, 1-q0, q0)]
+
+write.table(x= 
+  postDiff[, list(chrom,
+                start,
+                p0.005= 100 * round(p0.005_post_M, 4),
+                p0.025= 100 * round(p0.025_post_M, 4),
+                p0.25=  100 * round(p0.25_post_M, 4),
+                p0.5=   100 * round(p0.5_post_M, 4),
+                p0.75=  100 * round(p0.75_post_M, 4),
+                p0.975= 100 * round(p0.975_post_M, 4),
+                p0.995= 100 * round(p0.995_post_M, 4),
+                mode= 100 * round(mode_post_M, 4),
+                prob0= pqAt0)],
+  file= 'posterior_5mC_margin.txt', row.names= FALSE, quote= FALSE, sep= '\t')
+system('gzip posterior_5mC_margin.txt')
+
+
+```
+
 The three output files, `posterior_5mC_margin.txt.gz`, `posterior_5mC_tumor.txt.gz` and `posterior_5mC_tum-mar.txt.gz` produced above
 contain at each tested CpG the sample quantiles and mode of the posterior distribution of 5mC in margin, 5mC in tumor and the 5mC difference,
 respectively. File `posterior_5mC_tum-mar.txt.gz` also contains the raw counts and this is a sample of the first rows:
@@ -395,7 +462,7 @@ Inspecting the posterior distributions
 
 The Bayesian estimates of the tumor-margin differences were compared to the observed differences simply calculated as:
 
-<img src="latex/equations.3.jpg" width="400">
+<img src="latex/equations.4.jpg" width="400">
 
 Where #M and #U are the read count methylated and unmethylated, respectively.
 
