@@ -189,5 +189,4 @@ ggsave('figures/roc_curve.png', width= 12, height= 10, units= 'cm')
 
 | <img src=figures/roc_curve.png width="600"> |
 |---------------------------------------------|
-| **Figure 2** ROC curves for the performance of the Fisher test (blue) and Bayesian estimate (red) 
-on the simulated dataset |
+| **Figure 2** ROC curves for the performance of the Fisher test (blue) and Bayesian estimate (red) on the simulated dataset |
