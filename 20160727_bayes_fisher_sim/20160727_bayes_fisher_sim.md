@@ -116,7 +116,7 @@ ggsave('figures/observed_methylation.png', width= 14, height= 10, units= 'cm')
 Now table `bdg` has the counts that would be observed from a realistic experiment.
 
 | <img src=figures/observed_methylation.png width="600" > |
-|-|
+|---------------------------------------------------------|
 |**Figure 1** Distribution of simulated percentage of methylation in tumor (red) and margin (blue) |
 
 Bayesian estimates of methylation difference
@@ -188,6 +188,6 @@ ggsave('figures/roc_curve.png', width= 12, height= 10, units= 'cm')
 ```
 
 | <img src=figures/roc_curve.png width="600"> |
-|-|
+|---------------------------------------------|
 | **Figure 2** ROC curves for the performance of the Fisher test (blue) and Bayesian estimate (red) 
 on the simulated dataset |
