@@ -16,7 +16,7 @@ Required software:
 * [Strelka](http://bioinformatics.oxfordjournals.org/content/28/14/1811.long)
 * [Canvas](http://bioinformatics.oxfordjournals.org/content/32/15/2375.long)
 * [Manta](http://bioinformatics.oxfordjournals.org/content/32/8/1220.long)
-* Human reference genome GRCh37 obtained from [Ensembl](ftp://ftp.ensembl.org/pub/grch37/)
+* Human reference genome GRCh37 obtained from [Ensembl](http://www.ensembl.org/info/data/ftp/index.html)
 
 
 Alignment
