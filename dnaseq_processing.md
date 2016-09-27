@@ -28,7 +28,10 @@ Quality control and alignment of reads from the HiSeq Illumina sequencer to the 
 Variation
 =========
 
-Somatic variant detection of the match tumour-margin sample obtained from the patient was performed using software developed by [Illumina](http://www.illumina.com/informatics/research.html). Single nucleotide variations (SNVs) and small somatic indels were identified using `Strelka` from the aligned the sequencing reads. Large copy number variants (CNVs) and structural variants (SVs) were detected using `Canvas` and `Manta` respectively.
+Somatic variant detection of the match tumour-margin sample obtained from the patient was performed using software developed by [Illumina](http://www.illumina.com/informatics/research.html). 
+
+* Single nucleotide variations (SNVs) and small somatic indels were identified using `Strelka` from the aligned the sequencing reads.
+* Large copy number variants (CNVs) and structural variants (SVs) were detected using `Canvas` and `Manta` respectively.
 
 
 Tumour purity
