@@ -22,6 +22,7 @@ Additional required software:
 * [bam2methylation.py](https://github.com/dariober/bioinformatics-cafe/tree/master/bam2methylation)
 * [BamUtil: clipOverlap](http://genome.sph.umich.edu/wiki/BamUtil:_clipOverlap)
 * [bedtools](http://bedtools.readthedocs.org/en/latest/) version 2.25
+* [tabix](http://www.htslib.org/doc/tabix.html) version 0.2.5
 * [R-3.2.3](https://cran.r-project.org/) 
 * Human reference genome version hg19 obtained from [Illumina iGenomes](http://support.illumina.com/sequencing/sequencing_software/igenome.html)
 
@@ -67,7 +68,8 @@ Bam files generated from the same library but sequenced on different lanes were 
 
 ```
 samtools merge -f -@8 ${id}.${runBatch}.bam $bams &&
-java -Xmx3G -jar picard.jar MarkDuplicates VALIDATION_STRINGENCY=SILENT TMP_DIR=./ I=${id}.${runBatch}.bam O=/dev/null M=${id}.${runBatch}.markdup.txt &&
+samtools index ${id}.${runBatch}.bam &&
+java -Xmx3G -jar picard.jar MarkDuplicates VALIDATION_STRINGENCY=SILENT TMP_DIR=./ I=${id}.${runBatch}.bam O=/dev/null M=${id}.${runBatch}.markdup.txt
 ```
 
 `${id}.${runBatch}` is the basename for the merged and marked bam files. `$bams` is the list of bam files to be merged.
@@ -104,7 +106,18 @@ do
 done
 ```
 
-`hg19.allCpG.bed.gz` is a bed file containing the position of all the CpG in the reference genome. 
+`hg19.allCpG.bed.gz` is a bed file containing the position of all the CpG in the reference genome.
+
+
+Concatenate files within libraries and index:
+
+```
+zcat ${id}.chr*.bedGraph.gz | bgzip > ${id}.cpg.bedGraph.gz &&
+tabix -p bed ${id}.cpg.bedGraph.gz"
+```
+
+`${id}` is the library basename
+
 
 TODO
 ====
