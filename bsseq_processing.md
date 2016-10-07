@@ -165,7 +165,7 @@ dev.off()
 
 ```
 
-Plot ATRX gene (`../figures/ATRX.gene.png`):
+Plot ATRX gene (`figures/ATRX.gene.png`):
 
 <img src="../figures/ATRX.gene.png" width="600">
 
