@@ -159,7 +159,7 @@ displayPars(itrack) <- list(background.panel = "white", showBandId = FALSE, font
 displayPars(gtrack) <- list(background.panel = "white", add53=TRUE, add35=TRUE, labelPos = "above", col = "black", fontcolor = "black", fontsize = 25)
 displayPars(refGenes) <- list(transcriptAnnotation = "symbol", collapseTranscripts = "longest", shape = "arrow", fontfamily = "sans", fontsize.group = 30, background.panel = "white", col = NULL, background.title = "white", fontcolor.group = "black", col.line = "black")
 
-png("../figures/ATRX.gene.png", width = 40/2.54, height = 5/2.54)
+png("figures/ATRX.gene.png", width = 40/2.54, height = 5/2.54)
 plotTracks(list(itrack, gtrack, refGenes), from = 76740000, to = 77052000)
 dev.off()
 
@@ -167,7 +167,7 @@ dev.off()
 
 Plot ATRX gene (`figures/ATRX.gene.png`):
 
-<img src="../figures/ATRX.gene.png" width="600">
+<img src="figures/ATRX.gene.png" width="600">
 
 
 
