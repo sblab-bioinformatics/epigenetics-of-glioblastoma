@@ -124,19 +124,14 @@ tabix -p bed ${id}.cpg.bedGraph.gz
 =============================
 
 <!--
-This part from https://github.com/sblab-bioinformatics/projects/blob/master/20150501_methylation_brain/20160826_genomic_profiles_examples/scripts/20160826_genomic_profiles_examples.md
+This part modified from https://github.com/sblab-bioinformatics/projects/blob/master/20150501_methylation_brain/20160826_genomic_profiles_examples/scripts/20160826_genomic_profiles_examples.md
 -->
+
+Plot ATRX gene:
 
 ```R
 library(Gviz)
 library(BSgenome.Hsapiens.UCSC.hg19)
-library(data.table)
-library(ggplot2)
-library(Biostrings)
-
-##################
-# Plot ATRX gene #
-##################
 
 ## Define genomic coordinates track
 gtrack <- GenomeAxisTrack()
@@ -162,14 +157,96 @@ displayPars(refGenes) <- list(transcriptAnnotation = "symbol", collapseTranscrip
 png("figures/ATRX.gene.png", width = 40/2.54, height = 5/2.54)
 plotTracks(list(itrack, gtrack, refGenes), from = 76740000, to = 77052000)
 dev.off()
-
 ```
-
-Plot ATRX gene (`figures/ATRX.gene.png`):
 
 <img src="figures/ATRX.gene.png" width="600">
 
+Base resolution 5mC and 5hmC levels at CpGi in 5'-UTR:
 
+```bash
+for bed in bedGraphs
+do
+    bname=`cut -d"." -f1 $bed`
+    echo -e "chrX\t77041003\t77041725" | bedtools intersect -a $bed -b - -wa > $bname.cpg.ATRX.CGI.bedGraph
+done
+```
+
+```R
+library(data.table)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(ggplot2)
+library(Biostrings)
+
+ear042_M8BS <- fread("ear042_M8BS.cpg.ATRX.CGI.bedGraph")
+setnames(ear042_M8BS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand"))
+
+ear043_M8oxBS <- fread("ear043_M8oxBS.cpg.ATRX.CGI.bedGraph")
+setnames(ear043_M8oxBS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand"))
+
+ear044_T3BS <- fread("ear044_T3BS.cpg.ATRX.CGI.bedGraph")
+setnames(ear044_T3BS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand"))
+
+ear045_T3oxBS <- fread("ear045_T3oxBS.cpg.ATRX.CGI.bedGraph")
+setnames(ear045_T3oxBS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand"))
+
+setkey(ear042_M8BS, chr, start, end, strand)
+setkey(ear043_M8oxBS, chr, start, end, strand)
+setkey(ear044_T3BS, chr, start, end, strand)
+setkey(ear045_T3oxBS, chr, start, end, strand)
+
+M8 <- merge(ear042_M8BS, ear043_M8oxBS, suffixes = c(".BS", ".oxBS"))
+T3 <- merge(ear044_T3BS, ear045_T3oxBS, suffixes = c(".BS", ".oxBS"))
+
+setkey(M8, chr, start, end, strand)
+setkey(T3, chr, start, end, strand)
+M8.T3 <- merge(M8, T3, suffixes = c(".M8", ".T3"))
+
+strack <- SequenceTrack(Hsapiens, chromosome = "chrX")
+as.character(subseq(strack, 77041004, 77041725)) # 77041003 + 1
+
+nucleotides <- unlist(strsplit(as.character(subseq(strack, 77041004, 77041725)), split = ""))
+chroms <- rep("chrX", length(nucleotides))
+starts <- seq(77041003, 77041724)
+ends <- seq(77041004, 77041725)
+
+cgi <- data.table(data.frame(chr = chroms, start = starts, end = ends, base = nucleotides))
+
+tab5 <- M8.T3[, list(pct_5mC.M8=100*sum(cnt_met.oxBS.M8)/sum(cnt_tot.oxBS.M8), pct_5hmC.M8=100*(sum(cnt_met.BS.M8)/sum(cnt_tot.BS.M8) - sum(cnt_met.oxBS.M8)/sum(cnt_tot.oxBS.M8)), pct_C_other.M8=100*(1-sum(cnt_met.BS.M8)/sum(cnt_tot.BS.M8)), pct_5mC.T3=100*sum(cnt_met.oxBS.T3)/sum(cnt_tot.oxBS.T3), pct_5hmC.T3=100*(sum(cnt_met.BS.T3)/sum(cnt_tot.BS.T3) - sum(cnt_met.oxBS.T3)/sum(cnt_tot.oxBS.T3)), pct_C_other.T3=100*(1-sum(cnt_met.BS.T3)/sum(cnt_tot.BS.T3))), by=list(chr, start, end)]
+
+setkey(cgi, chr, start, end)
+setkey(tab5, chr, start, end)
+
+cgi_tab5 <- data.frame(merge(cgi, tab5, all = TRUE))
+
+cgi_tab5[is.na(cgi_tab5)] <- 0 # change all NAs to 0s
+
+cgi_tab5 <- data.table(cgi_tab5) # change back to data.table
+
+cgi_tabsummary5 <- reshape2::melt(cgi_tab5, id.vars = c("chr", "start", "end", "base"), variable.name = "sample", value.name = "pct_met")
+cgi_tabsummary5[, sample2 := factor(c(rep("M", 722*3), rep("T", 722*3)))]
+cgi_tabsummary5[, label := factor(rep(c(rep("5mC", 722), rep("5hmC", 722), rep("C", 722)),2), levels = c("C", "5hmC", "5mC"))]
+cgi_tabsummary5[, sample:=NULL]
+cgi_tabsummary5[, index := rep(1:722, 6)]
+
+vals <- paste(nucleotides, as.character(complement(DNAStringSet(nucleotides))), sep = "\n")
+keys <- as.character(1:722)
+names(vals) <- keys
+labels <- vals
+
+gg <- ggplot(cgi_tabsummary5[index > 525 & index < 558], aes(x = sample2, y = pct_met, fill = label)) +
+geom_bar(stat = "identity") +
+xlab("") +
+ylab("% Modification") +
+theme_classic() +
+theme(legend.title = element_blank(), strip.background = element_blank(), strip.text = element_text(size=8), panel.margin = unit(0.05, "lines"), axis.text.x = element_text(size=6)) +
+scale_fill_manual(values=c("lightgray", "#009E73", "#D55E00")) +
+facet_grid(. ~ index, switch = "x", labeller = labeller(index = labels))
+ggsave("figures/ATRX.cpg.CGI.BS.oxBS.chrX.77041528.77041560.png", width = 15/2.54, height = 5/2.54, limitsize = FALSE)
+```
+
+<img src="figures/ATRX.cpg.CGI.BS.oxBS.chrX.77041528.77041560.png" width="600">
+
+Mean 5mC and 5hmC levels in promoter:
 
 TODO
 ====
