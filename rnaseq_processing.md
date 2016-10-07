@@ -44,6 +44,10 @@ Where `$fq1` and `$fq2` are fastq file for the two mates of each pair and `${x}`
 Transcript levels ATRX gene
 ===========================
 
+<!-- 
+From https://github.com/sblab-bioinformatics/projects/blob/master/20150501_methylation_brain/20160826_genomic_profiles_examples/scripts/20160826_genomic_profiles_examples.md
+ -->
+
 ```R
 library(data.table)
 library(ggplot2)
