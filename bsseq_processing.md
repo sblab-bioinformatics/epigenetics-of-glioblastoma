@@ -26,6 +26,8 @@ Additional required software:
 * [tabix](http://www.htslib.org/doc/tabix.html) version 0.2.5
 * [R-3.2.3](https://cran.r-project.org/) 
 * Human reference genome version hg19 obtained from [Illumina iGenomes](http://support.illumina.com/sequencing/sequencing_software/igenome.html)
+* [COSMIC](http://cancer.sanger.ac.uk/cosmic) version 76
+
 
 Read trimming and alignment
 ===========================
@@ -124,7 +126,7 @@ tabix -p bed ${id}.cpg.bedGraph.gz
 =============================
 
 <!--
-This part modified from https://github.com/sblab-bioinformatics/projects/blob/master/20150501_methylation_brain/20160826_genomic_profiles_examples/scripts/20160826_genomic_profiles_examples.md
+This part modified from https://github.com/sblab-bioinformatics/projects/blob/master/20150501_methylation_brain/20160826_genomic_profiles_examples/scripts/20160826_genomic_profiles_examples.md and https://github.com/sblab-bioinformatics/projects/blob/master/20150501_methylation_brain/20160226_tsg_ocg.md
 -->
 
 Plot ATRX gene:
@@ -170,6 +172,8 @@ do
     echo -e "chrX\t77041003\t77041725" | bedtools intersect -a $bed -b - -wa > $bname.cpg.ATRX.CGI.bedGraph
 done
 ```
+
+`$bedGraphs` is a list of files containing the position of all the CpG in the reference genome and the methylation counts (ear042_M8BS.cpg.bedGraph, ear043_M8oxBS.cpg.bedGraph, ear044_T3BS.cpg.bedGraph and ear045_T3oxBS.cpg.bedGraph).
 
 ```R
 library(data.table)
@@ -247,6 +251,66 @@ ggsave("figures/ATRX.cpg.CGI.BS.oxBS.chrX.77041528.77041560.png", width = 15/2.5
 <img src="figures/ATRX.cpg.CGI.BS.oxBS.chrX.77041528.77041560.png" width="600">
 
 Mean 5mC and 5hmC levels in promoter:
+
+```bash
+for bed in bedGraphs
+do
+    bname=`cut -d"." -f1 $bed`
+    bedtools intersect -a $bed -b $bed_cancer_genes_promoters_1kb -wa -wb | cut -f 1,2,3,4,5,6,10,11,12 > $bname.cpg_genes.promoters.all.cancer.glioblastoma.1000.sorted.bed
+done
+```
+
+where `$bed_cancer_genes_promoters_1kb` contains the coordinates of all promoters of cancer genes as defined in COSMIC version 76.
+
+```R
+library(data.table)
+library(ggplot2)
+
+ear042_M8BS <- fread("ear042_M8BS.cpg_genes.promoters.all.cancer.glioblastoma.1000.sorted.bed")
+setnames(ear042_M8BS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand", "gene_name", "cancer", "glioblastoma"))
+
+ear043_M8oxBS <- fread("ear043_M8oxBS.cpg_genes.promoters.all.cancer.glioblastoma.1000.sorted.bed")
+setnames(ear043_M8oxBS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand", "gene_name", "cancer", "glioblastoma"))
+
+ear044_T3BS <- fread("ear044_T3BS.cpg_genes.promoters.all.cancer.glioblastoma.1000.sorted.bed")
+setnames(ear044_T3BS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand", "gene_name", "cancer", "glioblastoma"))
+
+ear045_T3oxBS <- fread("ear045_T3oxBS.cpg_genes.promoters.all.cancer.glioblastoma.1000.sorted.bed")
+setnames(ear045_T3oxBS, c("chr", "start", "end", "cnt_met", "cnt_tot", "strand", "gene_name", "cancer", "glioblastoma"))
+
+setkey(ear042_M8BS, chr, start, end, strand, gene_name, cancer, glioblastoma)
+setkey(ear043_M8oxBS, chr, start, end, strand, gene_name, cancer, glioblastoma)
+setkey(ear044_T3BS, chr, start, end, strand, gene_name, cancer, glioblastoma)
+setkey(ear045_T3oxBS, chr, start, end, strand, gene_name, cancer, glioblastoma)
+
+M8 <- merge(ear042_M8BS, ear043_M8oxBS, suffixes = c(".BS", ".oxBS"))
+T3 <- merge(ear044_T3BS, ear045_T3oxBS, suffixes = c(".BS", ".oxBS"))
+
+setkey(M8, chr, start, end, strand, gene_name, cancer, glioblastoma)
+setkey(T3, chr, start, end, strand, gene_name, cancer, glioblastoma)
+M8.T3 <- merge(M8, T3, suffixes = c(".M8", ".T3"))
+
+xdata<-M8.T3[gene_name == "ATRX"]
+
+tab<-xdata[, list(pct_5mC.M8=100*sum(cnt_met.oxBS.M8)/sum(cnt_tot.oxBS.M8), pct_5hmC.M8=100*(sum(cnt_met.BS.M8)/sum(cnt_tot.BS.M8) - sum(cnt_met.oxBS.M8)/sum(cnt_tot.oxBS.M8)), pct_C_other.M8=100*(1-sum(cnt_met.BS.M8)/sum(cnt_tot.BS.M8)), pct_5mC.T3=100*sum(cnt_met.oxBS.T3)/sum(cnt_tot.oxBS.T3), pct_5hmC.T3=100*(sum(cnt_met.BS.T3)/sum(cnt_tot.BS.T3) - sum(cnt_met.oxBS.T3)/sum(cnt_tot.oxBS.T3)), pct_C_other.T3=100*(1-sum(cnt_met.BS.T3)/sum(cnt_tot.BS.T3))), by=gene_name]
+
+tab.summary <- reshape2::melt(tab, id.vars = "gene_name", variable.name = "sample", value.name = "pct_met")
+tab.summary[, sample2 := factor(c(rep("Margin",3),rep("Tumour",3)))]
+tab.summary[, label := factor(rep(c("5mC", "5hmC", "C"),2), levels = c("C", "5hmC", "5mC"))]
+tab.summary[, sample := NULL]
+
+gg <- ggplot(tab.summary, aes(x = sample2, y = pct_met, fill = label)) +
+geom_bar(stat = "identity") +
+xlab("") +
+ylab("% Modification") +
+theme_classic() +
+theme(legend.title = element_blank(), strip.background = element_blank(), axis.text.x = element_text(size=10), axis.title.y = element_text(size=10)) +
+scale_fill_manual(values=c("lightgray", "#009E73", "#D55E00"))
+ggsave("/figures/ATRX.promoter.BS.oxBS.summary.png", width = 7/2.54, height = 4.75/2.54)
+```
+
+<img src="figures/ATRX.promoter.BS.oxBS.summary.png" width="300">
+
 
 TODO
 ====
