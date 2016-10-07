@@ -4,6 +4,7 @@
 - [Read trimming and alignment](#read-trimming-and-alignment)
 - [Merging bam files and marking duplicates](#merging-bam-files-and-marking-duplicates)
 - [Methylation at CpG sites](#methylation-at-cpg-sites)
+- [5mC and 5hmC levels ATRX gene](#5mc-and-5hmc-levels-atrx-gene)
 - [TODO](#todo)
 
 <!-- /MarkdownTOC -->
@@ -113,10 +114,61 @@ Concatenate files within libraries and index:
 
 ```
 zcat ${id}.chr*.bedGraph.gz | bgzip > ${id}.cpg.bedGraph.gz &&
-tabix -p bed ${id}.cpg.bedGraph.gz"
+tabix -p bed ${id}.cpg.bedGraph.gz
 ```
 
-`${id}` is the library basename
+`${id}` is the library basename.
+
+
+5mC and 5hmC levels ATRX gene
+=============================
+
+<!--
+This part from https://github.com/sblab-bioinformatics/projects/blob/master/20150501_methylation_brain/20160826_genomic_profiles_examples/scripts/20160826_genomic_profiles_examples.md
+-->
+
+```R
+library(Gviz)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(data.table)
+library(ggplot2)
+library(Biostrings)
+
+##################
+# Plot ATRX gene #
+##################
+
+## Define genomic coordinates track
+gtrack <- GenomeAxisTrack()
+gtrack
+
+
+## Define chromosome X ideogram track
+itrack <- IdeogramTrack(genome = "hg19", chromosome = "chrX")
+itrack
+
+
+## Load gene models using UcscTrack. Coordinates from https://www.ncbi.nlm.nih.gov/gene?cmd=retrieve&dopt=default&rn=1&list_uids=546
+from <- 76500000
+to <- 77400000
+refGenes <- UcscTrack(track = "refGene", trackType = "GeneRegionTrack", genome = "hg19", chromosome = "chrX", name = "Genes", from = from, to = to, rstarts = "exonStarts", rends = "exonEnds", gene = "name2", symbol = "name2", transcript = "name", strand = "strand")
+
+
+## Plot
+displayPars(itrack) <- list(background.panel = "white", showBandId = FALSE, fontcolor = "black", fontsize = 20)
+displayPars(gtrack) <- list(background.panel = "white", add53=TRUE, add35=TRUE, labelPos = "above", col = "black", fontcolor = "black", fontsize = 25)
+displayPars(refGenes) <- list(transcriptAnnotation = "symbol", collapseTranscripts = "longest", shape = "arrow", fontfamily = "sans", fontsize.group = 30, background.panel = "white", col = NULL, background.title = "white", fontcolor.group = "black", col.line = "black")
+
+png("../figures/ATRX.gene.png", width = 40/2.54, height = 5/2.54)
+plotTracks(list(itrack, gtrack, refGenes), from = 76740000, to = 77052000)
+dev.off()
+
+```
+
+Plot ATRX gene (`../figures/ATRX.gene.png`):
+
+<img src="../figures/ATRX.gene.png" width="600">
+
 
 
 TODO
