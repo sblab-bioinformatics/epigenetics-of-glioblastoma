@@ -5,7 +5,6 @@
 - [Merging bam files and marking duplicates](#merging-bam-files-and-marking-duplicates)
 - [Methylation at CpG sites](#methylation-at-cpg-sites)
 - [5mC and 5hmC levels ATRX gene](#5mc-and-5hmc-levels-atrx-gene)
-- [TODO](#todo)
 
 <!-- /MarkdownTOC -->
 
