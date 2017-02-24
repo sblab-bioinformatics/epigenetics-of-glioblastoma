@@ -3,7 +3,6 @@
 - [Software tools and requirements](#software-tools-and-requirements)
 - [Transcript expression from RNA-Seq](#transcript-expression-from-rna-seq)
 - [Transcript levels ATRX gene](#transcript-levels-atrx-gene)
-- [TODO](#todo)
 
 <!-- /MarkdownTOC -->
 
@@ -138,7 +137,3 @@ ggsave("figure/ATRX.expression.ylim3_6.png", width = 4.25/2.54, height = 4.75/2.
 <img src="figures/ATRX.expression.ylim3_6.png" width="300">
 
 
-TODO
-====
-
-Code for all figures and tables, depending on what we put in the manuscript
