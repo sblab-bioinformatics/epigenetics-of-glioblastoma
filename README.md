@@ -4,6 +4,6 @@ This repository contains a description of the bioinformatics methods associated 
 
 Details about the analyses are given in the following files:
 
-- [DNA sequencing](dnaseq_processing.md "dnaseq_processing.md")
-- [Bisulfite sequencing](bsseq_processing.md "bsseq_processing.md")
-- [RNA sequencing](rnaseq_processing.md "rnaseq_processing.md")
+- [DNA sequencing](dnaseq_processing.md "dnaseq_processing.md"): alignment, variation and tumour purity
+- [Bisulfite sequencing](bsseq_processing.md "bsseq_processing.md"): processing and alignment, methylation counting and 5mC/5hmC levels
+- [RNA sequencing](rnaseq_processing.md "rnaseq_processing.md"): transcript alignment, quantification and levels
