@@ -310,9 +310,3 @@ ggsave("/figures/ATRX.promoter.BS.oxBS.summary.png", width = 7/2.54, height = 4.
 ```
 
 <img src="figures/ATRX.promoter.BS.oxBS.summary.png" width="300">
-
-
-TODO
-====
-
-Code for all figures and tables, depending on what we put in the manuscript
