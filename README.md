@@ -1,3 +1,3 @@
-# Manuscript *submitted*: Base resolution whole genome maps reveal the importance of 5-hydroxymethylcytosine in a human glioblastoma
+# Manuscript *in press*: Base resolution maps reveal the importance of 5-hydroxymethylcytosine in a human glioblastoma
 
-This repository contains the bioinformatics method of the associated manuscript.
+This repository contains a description of the computational methods associated to the manuscript.
