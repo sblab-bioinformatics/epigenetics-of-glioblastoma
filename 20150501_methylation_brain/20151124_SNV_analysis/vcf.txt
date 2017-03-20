@@ -1,0 +1,1565 @@
+
+########################
+########################
+# DNA-Seq data explained
+########################
+########################
+
+# In disk1:
+# /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk1
+# comparisons of:
+# tumour vs. blood (CancerLP2000729-DNA_E01_NormalLP200) 
+# margin vs. blood (CancerLP2000729-DNA_C01_NormalLP200)
+# e.g. for CancerLP2000729-DNA_E01_NormalLP200:
+# report is in:
+# CancerLP2000729-DNA_E01_NormalLP200/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.SummaryReport.pdf
+# SNVs are in:
+# CancerLP2000729-DNA_E01_NormalLP200/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf.gz
+# CNVs are in:
+# CancerLP2000729-DNA_E01_NormalLP200/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.CNV.vcf.gz
+# SVs are in:
+# CancerLP2000729-DNA_E01_NormalLP200/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.SV.vcf.gz
+
+# In disk2:
+# /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk2
+# comparisons of:
+# tumour vs. reference Ensembl GRCh37 (LP2000729-DNA_E01)
+# margin vs. reference Ensembl GRCh37 (LP2000729-DNA_C01)
+# blood vs. reference Ensembl GRCh37 (LP2000729-DNA_A01)
+# e.g. for LP2000729-DNA_E01:
+# reports are in:
+# LP2000729-DNA_E01.SummaryReport.csv
+# LP2000729-DNA_E01.SummaryReport.pdf
+# bam file is in:
+# LP2000729-DNA_E01/Assembly/LP2000729-DNA_E01.bam
+# SNVs are in:
+# LP2000729-DNA_E01/Variations/LP2000729-DNA_E01.vcf.gz
+# SVs are in:
+# LP2000729-DNA_E01.SV.vcf.gz
+
+# In Dario's public folder:
+# nautilus smb://cri-share.cri.camres.org
+# groups/Research/sblab/public_folders/berald01/projects/20150501_methylation_brain/Documents/DNA-Seq_results/
+# tumour vs. blood (LP2000729-DNA_A01_LP2000729-DNA_E01_G1_P1.html)
+# margin vs. blood (LP2000729-DNA_A01_LP2000729-DNA_C01_G1_P1.html)
+
+# Sharing bam files with Jennifer Becq
+curl -v -k --user sblabcollabftp01:SimarXMTR7 --ftp-pasv --ftp-ssl -T LP2000729-DNA_C01.bam ftp://ftp2.cruk.cam.ac.uk
+# ftp://sblabcollabftp01:SimarXMTR7@ftp2.cruk.cam.ac.uk
+# Details available in the postgresql-setup project here:
+# http://10.20.192.25:3000/projects/postgresql-setup/wiki/Ftp-transfer#Upload-to-CRI
+
+# https://sites.google.com/site/gvcftools/
+# http://samtools.github.io/hts-specs/VCFv4.1.pdf
+
+# In bash
+ssh hpcgate.cri.camres.org
+cd /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf
+cp /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk1/CancerLP2000729-DNA_E01_NormalLP200/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf.gz . # tumour vs. blood
+cp /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk1/CancerLP2000729-DNA_C01_NormalLP200/SomaticVariations/CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf.gz . # margin vs. blood
+gzip -d CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf.gz
+gzip -d CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf.gz
+exit
+cd /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf
+
+
+
+### We have received tumour vs. margin from Jennifer
+
+
+# In 20151029_tumour_vs_margin/:
+# /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/
+# comparison of:
+# tumour vs. margin (CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01) 
+# report is in:
+# CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.SummaryReport.pdf
+# SNVs are in:
+# CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf.gz
+# CNVs are in:
+# CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.CNV.vcf.gz
+# SVs are in:
+# CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.SV.vcf.gz
+
+# In Dario's public folder:
+# nautilus smb://cri-share.cri.camres.org
+# groups/Research/sblab/public_folders/berald01/projects/20150501_methylation_brain/Documents/DNA-Seq_results/
+# tumour vs. margin (smb://cri-share.cri.camres.org/groups/Research/sblab/public_folders/berald01/projects/20150501_methylation_brain/Documents/DNA-Seq_results/LP2000729-DNA_C01_LP2000729-DNA_E01_G1_P1.html)
+
+# In bash
+ssh hpcgate.cri.camres.org
+cd /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf
+cp /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/20151029_tumour_vs_margin/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01/SomaticVariations/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf.gz .
+gzip -d CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf.gz
+
+
+
+########################################
+########################################
+# Heatmaps - sudoku plots - Python and R
+########################################
+########################################
+
+
+##################
+# tumour vs. blood
+##################
+
+### Python
+
+import vcf # https://pyvcf.readthedocs.org/en/latest/index.html
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	if len(ref)==1 and len(alt)==1:
+		if (ref,alt) in snv:
+			snv[(ref,alt)]+=1
+		else:
+			snv[(ref,alt)]=1
+
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+records=[record for record in vcf_reader]
+len(records) # 8430
+
+sum(snv.values()) # 7937
+# evince /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk1/CancerLP2000729-DNA_E01_NormalLP200/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.SummaryReport.pdf
+# smb://cri-share.cri.camres.org/groups/Research/sblab/public_folders/berald01/projects/20150501_methylation_brain/Documents/DNA-Seq_results/LP2000729-DNA_A01_LP2000729-DNA_E01_G1_P1.html
+
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv:
+			output.write("\t%s" % snv[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+# context C>T/G>A
+
+from Bio import SeqIO
+
+chr_seq={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	chr_seq[seq_record.id]=str(seq_record.seq)
+
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv_CtoT_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="C" and alt=="T") or (ref=="G" and alt=="A"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_CtoT_context:
+					snv_CtoT_context[(fp,tp)]+=1
+				else:
+					snv_CtoT_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_CtoT_context.values()) # 3936
+# 2074+1862=3936 /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_blood.pdf
+# All of them match
+# 100*3936/7937 # 49.6% of the SNVs are either C>T or G>A
+
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood_context.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_CtoT_context:
+			output.write("\t%s" % snv_CtoT_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+
+# context C>T only
+
+from Bio import SeqIO
+
+chr_seq={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	chr_seq[seq_record.id]=str(seq_record.seq)
+
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv_CtoT_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="C" and alt=="T"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_CtoT_context:
+					snv_CtoT_context[(fp,tp)]+=1
+				else:
+					snv_CtoT_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_CtoT_context.values()) # 2074
+# /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_blood.pdf
+# All of them match
+round(100*float(2074)/7937,2) # 26.1% of the SNVs are C>T
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood_context_CtoT.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_CtoT_context:
+			output.write("\t%s" % snv_CtoT_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+# context G>A only
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv_GtoA_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="G" and alt=="A"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_GtoA_context:
+					snv_GtoA_context[(fp,tp)]+=1
+				else:
+					snv_GtoA_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_GtoA_context.values()) # 1862
+# /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_blood.pdf
+# All of them match
+round(100*float(1862)/7937,2) # 23.46% of the SNVs are G>A
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood_context_GtoA.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_GtoA_context:
+			output.write("\t%s" % snv_GtoA_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+### R
+
+library(pheatmap)
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_blood.pdf")
+
+
+# context C>T/G>A
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood_context.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_blood_context.pdf")
+
+
+# context C>T only
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood_context_CtoT.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_blood_context_CtoT.pdf")
+
+
+# context G>A only
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood_context_GtoA.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_blood_context_GtoA.pdf")
+
+
+
+##################
+# margin vs. blood
+##################
+
+### Python
+
+import vcf # https://pyvcf.readthedocs.org/en/latest/index.html
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	if len(ref)==1 and len(alt)==1:
+		if (ref,alt) in snv:
+			snv[(ref,alt)]+=1
+		else:
+			snv[(ref,alt)]=1
+
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+records=[record for record in vcf_reader]
+len(records) # 832
+
+sum(snv.values()) # 826
+# evince /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk1/CancerLP2000729-DNA_C01_NormalLP200/CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.SummaryReport.pdf
+# smb://cri-share.cri.camres.org/groups/Research/sblab/public_folders/berald01/projects/20150501_methylation_brain/Documents/DNA-Seq_results/LP2000729-DNA_A01_LP2000729-DNA_C01_G1_P1.html
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_margin_blood.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv:
+			output.write("\t%s" % snv[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+# context C>T/G>A
+
+from Bio import SeqIO
+
+chr_seq={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	chr_seq[seq_record.id]=str(seq_record.seq)
+
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv_CtoT_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="C" and alt=="T") or (ref=="G" and alt=="A"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_CtoT_context:
+					snv_CtoT_context[(fp,tp)]+=1
+				else:
+					snv_CtoT_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_CtoT_context.values()) # 285
+# 150+135=285 /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_margin_blood.pdf
+# All of them match
+
+
+# context C>T
+
+from Bio import SeqIO
+
+chr_seq={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	chr_seq[seq_record.id]=str(seq_record.seq)
+
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv_CtoT_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="C" and alt=="T"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_CtoT_context:
+					snv_CtoT_context[(fp,tp)]+=1
+				else:
+					snv_CtoT_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_CtoT_context.values()) # 150
+# /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_margin_blood.pdf
+# All of them match
+round(100*float(150)/826,2) # 18.16% of the SNVs are C>T
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_margin_blood_context_CtoT.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_CtoT_context:
+			output.write("\t%s" % snv_CtoT_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+# context A>G
+
+from Bio import SeqIO
+
+chr_seq={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	chr_seq[seq_record.id]=str(seq_record.seq)
+
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf', 'r'))
+
+snv_GtoA_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="G" and alt=="A"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_GtoA_context:
+					snv_GtoA_context[(fp,tp)]+=1
+				else:
+					snv_GtoA_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_GtoA_context.values()) # 135
+# /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_margin_blood.pdf
+# All of them match
+round(100*float(135)/826,2) # 16.34% of the SNVs are G>A
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_margin_blood_context_GtoA.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_GtoA_context:
+			output.write("\t%s" % snv_GtoA_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+### R
+
+library(pheatmap)
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_margin_blood.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_margin_blood.pdf")
+
+
+# context C>T/G>A
+
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_margin_blood_context.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_margin_blood_context.pdf")
+
+
+# context C>T only
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_margin_blood_context_CtoT.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_margin_blood_context_CtoT.pdf")
+
+
+# context G>A only
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_margin_blood_context_GtoA.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_margin_blood_context_GtoA.pdf")
+
+
+###################
+# tumour vs. margin
+###################
+
+### Python
+
+
+import vcf # https://pyvcf.readthedocs.org/en/latest/index.html
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf', 'r'))
+
+snv={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	if len(ref)==1 and len(alt)==1:
+		if (ref,alt) in snv:
+			snv[(ref,alt)]+=1
+		else:
+			snv[(ref,alt)]=1
+
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf', 'r'))
+records=[record for record in vcf_reader]
+len(records) # 8775
+
+sum(snv.values()) # 8169
+# evince /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/20151029_tumour_vs_margin/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01/CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.SummaryReport.pdf
+# smb://cri-share.cri.camres.org/groups/Research/sblab/public_folders/berald01/projects/20150501_methylation_brain/Documents/DNA-Seq_results/LP2000729-DNA_C01_LP2000729-DNA_E01_G1_P1.html
+
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv:
+			output.write("\t%s" % snv[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+# context C>T/G>A
+
+from Bio import SeqIO
+
+chr_seq={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	chr_seq[seq_record.id]=str(seq_record.seq)
+
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf', 'r'))
+
+snv_CtoT_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="C" and alt=="T") or (ref=="G" and alt=="A"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_CtoT_context:
+					snv_CtoT_context[(fp,tp)]+=1
+				else:
+					snv_CtoT_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_CtoT_context.values()) # 3976
+# 2078+1898=3976 /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin.txt
+# All of them match
+# 100*3976/8169 # 48.67% of the SNVs are either C>T or G>A
+
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin_context.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_CtoT_context:
+			output.write("\t%s" % snv_CtoT_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+
+# context C>T only
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf', 'r'))
+
+snv_CtoT_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="C" and alt=="T"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_CtoT_context:
+					snv_CtoT_context[(fp,tp)]+=1
+				else:
+					snv_CtoT_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_CtoT_context.values()) # 2078
+# /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_blood.txt
+# All of them match
+round(100*float(2078)/8169,2) # 25.44% of the SNVs are C>T
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin_context_CtoT.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_CtoT_context:
+			output.write("\t%s" % snv_CtoT_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+# context G>A only
+
+import vcf
+
+vcf_reader = vcf.Reader(open('CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf', 'r'))
+
+snv_GtoA_context={}
+
+for record in vcf_reader:
+	ref=record.REF
+	alt=str(record.ALT).replace("[","").replace("]","")
+	chr=record.CHROM
+	print chr
+	pos=record.POS
+	if len(ref)==1 and len(alt)==1:
+		if (ref=="G" and alt=="A"):
+			if chr_seq[chr][pos-1].upper()==ref:
+				fp=chr_seq[chr][pos-2].upper()
+				tp=chr_seq[chr][pos].upper()
+				if (fp,tp) in snv_GtoA_context:
+					snv_GtoA_context[(fp,tp)]+=1
+				else:
+					snv_GtoA_context[(fp,tp)]=1
+			else:
+				print "Position %i in chromosome %s does not match reference" % (pos, chr)
+
+
+sum(snv_GtoA_context.values()) # 1898
+# /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin.pdf
+# All of them match
+round(100*float(1898)/8169,2) # 23.23% of the SNVs are G>A
+
+# Produce table for pheatmap in R
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin_context_GtoA.txt", "w")
+
+output.write("%s\n" % "\t".join(["A","C","G","T"]))
+
+for base1 in ["A","C","G","T"]:
+	output.write(base1)
+	for base2 in ["A","C","G","T"]:
+		if (base1,base2) in snv_GtoA_context:
+			output.write("\t%s" % snv_GtoA_context[(base1,base2)])
+		else:
+			output.write("\t0")
+	output.write("\n")
+
+
+output.close()
+
+
+### R
+
+
+library(pheatmap)
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_margin.pdf")
+
+
+# context C>T/G>A
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin_context.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_margin_context.pdf")
+
+
+# context C>T only
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin_context_CtoT.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_margin_context_CtoT.pdf")
+
+
+# context G>A only
+mydata <- read.table("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/mut_tumour_margin_context_GtoA.txt", header=TRUE, sep="\t", check.names = FALSE)
+
+pheatmap(mydata, color=colorRampPalette(c("white", "yellow", "red"))(100), border_color="white", cellwidth=40, cellheight = 40, cluster_rows = FALSE, cluster_cols = FALSE, legend=FALSE, main = paste(sum(mydata), "SNVs", sep=" "),  fontsize=20, display_numbers=T, number_format = "%.0f", filename="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/mut_tumour_margin_context_GtoA.pdf")
+
+
+####################
+####################
+# VariantAnnotation 
+####################
+####################
+
+# Obenchain2014
+# Bioconductor
+# https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html
+# https://bioconductor.org/packages/release/bioc/vignettes/VariantAnnotation/inst/doc/VariantAnnotation.pdf
+
+
+###################
+# tumour vs. margin
+###################
+
+# Load data:
+library(VariantAnnotation)
+vcf<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf
+
+# Examine header:
+header(vcf) # 2 samples, 3 pieces of meta information, 26 info fields, 15 geno fields
+samples(header(vcf))
+meta(header(vcf))
+meta(header(vcf))$META
+meta(header(vcf))$contig
+meta(header(vcf))$SAMPLE
+fixed(header(vcf))
+fixed(header(vcf))$FILTER
+info(header(vcf))
+info(header(vcf))$Description
+geno(header(vcf))
+geno(header(vcf))$Description
+
+# Examine columns:
+rowRanges(vcf)
+ref(vcf)
+alt(vcf)
+qual(vcf)
+
+# Genotype, e.g. depth:
+geno(vcf)
+geno(header(vcf))["DP",]
+DP <-geno(vcf)$DP
+dim(DP)
+DP[1:3,]
+fivenum(DP[,2])
+hist(DP[,1])
+
+# Info, e.g. quality scores:
+info(vcf)
+rownames(info(header(vcf)))
+info(header(vcf))["QSS",]
+QSS<-info(vcf)$QSS
+info(header(vcf))["TQSS",]
+TQSS<-info(vcf)$TQSS
+
+# Filter variants:
+# https://www.bioconductor.org/packages/release/bioc/vignettes/VariantAnnotation/inst/doc/filterVcf.pdf
+# ?isSNV
+dim(vcf) # 8775    2
+sum(isSNV(vcf)) # 8169
+sum(isTransition(vcf)) # 5420, can be C <-> T or A <-> G
+vcf_snv <- vcf[isSNV(vcf)] # Reference and alternate alleles are both a single nucleotide long
+sum(ref(vcf)=="C" & unlist(alt(vcf))=="T") # 2078
+vcf_CtoT <- vcf[ref(vcf)=="C" & unlist(alt(vcf))=="T"]
+sum(ref(vcf)=="G" & unlist(alt(vcf))=="A") # 1898
+vcf_GtoA <- vcf[ref(vcf)=="G" & unlist(alt(vcf))=="A"]
+
+# Locating variants in and around genes:
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+txdb
+# Db type: TxDb
+# Supporting package: GenomicFeatures
+# Data source: UCSC
+# Genome: hg19
+# Organism: Homo sapiens
+# Taxonomy ID: 9606
+# UCSC Table: knownGene
+# Resource URL: http://genome.ucsc.edu/
+# Type of Gene ID: Entrez Gene ID
+# Full dataset: yes
+# miRBase build ID: GRCh37
+# transcript_nrow: 82960
+# exon_nrow: 289969
+# cds_nrow: 237533
+# Db created by: GenomicFeatures package from Bioconductor
+# Creation time: 2015-10-07 18:11:28 +0000 (Wed, 07 Oct 2015)
+# GenomicFeatures version at creation time: 1.21.30
+# RSQLite version at creation time: 1.0.0
+# DBSCHEMAVERSION: 1.1
+
+
+
+chrms<-paste0("chr", seqlevels(vcf_snv))
+chrms<-replace(chrms, chrms=="chrMT", "chrM")
+vcf_snv <- renameSeqlevels(vcf_snv, chrms)
+intersect(seqlevels(vcf_snv), seqlevels(txdb))
+rd_snv <- rowRanges(vcf_snv)
+seqlengths(rd_snv)["chrM"]<-seqlengths(txdb)["chrM"]
+loc_snv_all <- locateVariants(rd_snv, txdb, AllVariants())
+loc_snv_cod <- locateVariants(rd_snv, txdb, CodingVariants())
+n_cod<-length(unique(loc_snv_cod$QUERYID)) # 88 SNVs in coding regions
+loc_snv_intron <- locateVariants(rd_snv, txdb, IntronVariants())
+n_intron<-length(unique(loc_snv_intron$QUERYID)) # 2862 SNVs in intron regions
+loc_snv_5utr <- locateVariants(rd_snv, txdb, FiveUTRVariants())
+n_5utr<-length(unique(loc_snv_5utr$QUERYID)) # 18 SNVs in 5'UTR regions
+loc_snv_3utr <- locateVariants(rd_snv, txdb, ThreeUTRVariants())
+n_3utr<-length(unique(loc_snv_3utr$QUERYID)) # 56 SNVs in 3'UTR regions
+loc_snv_inter <- locateVariants(rd_snv, txdb, IntergenicVariants())
+n_inter<-length(unique(loc_snv_inter$QUERYID)) # 5312 SNVs in intergenic regions
+loc_snv_splice <- locateVariants(rd_snv, txdb, SpliceSiteVariants())
+n_splice<-length(unique(loc_snv_splice$QUERYID)) # 2 SNVs in splice site regions
+loc_snv_pro <- locateVariants(rd_snv, txdb, PromoterVariants())
+n_pro<-length(unique(loc_snv_pro$QUERYID)) # 195 SNVs in promoter regions
+
+chrms<-paste0("chr", seqlevels(vcf_CtoT))
+chrms<-replace(chrms, chrms=="chrMT", "chrM")
+vcf_CtoT <- renameSeqlevels(vcf_CtoT, chrms)
+intersect(seqlevels(vcf_CtoT), seqlevels(txdb))
+rd_CtoT <- rowRanges(vcf_CtoT)
+seqlengths(rd_CtoT)["chrM"]<-seqlengths(txdb)["chrM"]
+loc_CtoT_all <- locateVariants(rd_CtoT, txdb, AllVariants())
+loc_CtoT_cod <- locateVariants(rd_CtoT, txdb, CodingVariants())
+n_cod_CtoT<-length(unique(loc_CtoT_cod$QUERYID)) # 28 CtoT SNVs in coding regions
+loc_CtoT_intron <- locateVariants(rd_CtoT, txdb, IntronVariants())
+n_intron_CtoT<-length(unique(loc_CtoT_intron$QUERYID)) # 721 CtoT SNVs in intron regions
+loc_CtoT_5utr <- locateVariants(rd_CtoT, txdb, FiveUTRVariants())
+n_5utr_CtoT<-length(unique(loc_CtoT_5utr$QUERYID)) # 4 CtoT SNVs in 5'UTR regions
+loc_CtoT_3utr <- locateVariants(rd_CtoT, txdb, ThreeUTRVariants())
+n_3utr_CtoT<-length(unique(loc_CtoT_3utr$QUERYID)) # 15 CtoT SNVs in 3'UTR regions
+loc_CtoT_inter <- locateVariants(rd_CtoT, txdb, IntergenicVariants())
+n_inter_CtoT<-length(unique(loc_CtoT_inter$QUERYID)) # 1360 CtoT SNVs in intergenic regions
+loc_CtoT_splice <- locateVariants(rd_CtoT, txdb, SpliceSiteVariants())
+n_splice_CtoT<-length(unique(loc_CtoT_splice$QUERYID)) # 2 CtoT SNVs in splice site regions
+loc_CtoT_pro <- locateVariants(rd_CtoT, txdb, PromoterVariants())
+n_pro_CtoT<-length(unique(loc_CtoT_pro$QUERYID)) # 50 CtoT SNVs in promoter regions
+
+chrms<-paste0("chr", seqlevels(vcf_GtoA))
+chrms<-replace(chrms, chrms=="chrMT", "chrM")
+vcf_GtoA <- renameSeqlevels(vcf_GtoA, chrms)
+intersect(seqlevels(vcf_GtoA), seqlevels(txdb))
+rd_GtoA <- rowRanges(vcf_GtoA)
+seqlengths(rd_GtoA)["chrM"]<-seqlengths(txdb)["chrM"]
+loc_GtoA_all <- locateVariants(rd_GtoA, txdb, AllVariants())
+loc_GtoA_cod <- locateVariants(rd_GtoA, txdb, CodingVariants())
+n_cod_GtoA<-length(unique(loc_GtoA_cod$QUERYID)) # 26 GtoA SNVs in coding regions
+loc_GtoA_intron <- locateVariants(rd_GtoA, txdb, IntronVariants())
+n_intron_GtoA<-length(unique(loc_GtoA_intron$QUERYID)) # 668 GtoA SNVs in intron regions
+loc_GtoA_5utr <- locateVariants(rd_GtoA, txdb, FiveUTRVariants())
+n_5utr_GtoA<-length(unique(loc_GtoA_5utr$QUERYID)) # 3 GtoA SNVs in 5'UTR regions
+loc_GtoA_3utr <- locateVariants(rd_GtoA, txdb, ThreeUTRVariants())
+n_3utr_GtoA<-length(unique(loc_GtoA_3utr$QUERYID)) # 16 GtoA SNVs in 3'UTR regions
+loc_GtoA_inter <- locateVariants(rd_GtoA, txdb, IntergenicVariants())
+n_inter_GtoA<-length(unique(loc_GtoA_inter$QUERYID)) # 1228 GtoA SNVs in intergenic regions
+loc_GtoA_splice <- locateVariants(rd_GtoA, txdb, SpliceSiteVariants())
+n_splice_GtoA<-length(unique(loc_GtoA_splice$QUERYID)) # 0 GtoA SNVs in splice site regions
+loc_GtoA_pro <- locateVariants(rd_GtoA, txdb, PromoterVariants())
+n_pro_GtoA<-length(unique(loc_GtoA_pro$QUERYID)) # 52 GtoA SNVs in promoter regions
+
+# Barplot: locating variants in and around genes:
+mytable<-matrix(c(n_cod, n_intron, n_5utr, n_3utr, n_inter, n_splice, n_pro, n_cod_CtoT, n_intron_CtoT, n_5utr_CtoT, n_3utr_CtoT, n_inter_CtoT, n_splice_CtoT, n_pro_CtoT, n_cod_GtoA, n_intron_GtoA, n_5utr_GtoA, n_3utr_GtoA, n_inter_GtoA, n_splice_GtoA, n_pro_GtoA), nrow=3,byrow=TRUE)
+mytable<-mytable[,order(mytable[1,], decreasing=T)]
+pdf("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_tumour_margin_location.pdf")
+par(lab=c(5, 6, 7), las=2, mar=c(7, 7, 4, 2), mgp=c(5, 1, 0))
+barplot(mytable, names.arg=c("Intergenic", "Intron", "Promoter", "Coding", "3'UTR", "5'UTR", "Splice site"), ylab="Number of SNVs", ylim=c(0,6000), cex.names=1.35, cex.axis=1.35, cex.lab=1.5, cex.main=2, main="Tumour vs. Margin", beside=T, col=c("black", "grey50", "grey90"), legend.text=c("All", "C>T", "G>A"), args.legend=list(x = "topright", cex=1.35))
+dev.off()
+
+# Summarise the number of coding variants by gene id
+snv_list<-loc_snv_cod$QUERYID
+length(unique(snv_list)) # 88 SNVs in coding regions
+gene_list<-loc_snv_cod$GENEID
+length(unique(gene_list))-1 # 83 genes where the 88 SNVs in coding genes are found
+splt <- split(loc_snv_cod$QUERYID, loc_snv_cod$GENEID)
+splt # list of genes and variants
+
+# Amino acid coding changes:
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(VariantAnnotation)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+vcf<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf_snv <- vcf[isSNV(vcf)]
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+chrms<-paste0("chr", seqlevels(vcf_snv))
+chrms<-replace(chrms, chrms=="chrMT", "chrM")
+vcf_snv <- renameSeqlevels(vcf_snv, chrms)
+intersect(seqlevels(vcf_snv), seqlevels(txdb))
+seqlengths(vcf_snv)["chrM"]<-seqlengths(txdb)["chrM"]
+coding <- predictCoding(vcf_snv, txdb, seqSource=Hsapiens)
+unlist(lapply(split(coding$CONSEQUENCE, coding$QUERYID),unique))
+
+# Barplot: nonsynonymous, synonymous, nonsense changes
+mytable<-sort(table(unlist(lapply(split(coding$CONSEQUENCE, coding$QUERYID),unique))), decreasing=T)
+pdf("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_tumour_margin_aminoacidcodingchanges.pdf")
+barplot(mytable, names.arg=c("Nonsynonymous", "Synonymous", "Nonsense"), ylab="Number of SNVs in coding regions", ylim=c(0,60), cex.names=1.35, cex.axis=1.35, cex.lab=1.5, cex.main=2, main="Tumour vs. Margin", col="grey50")
+dev.off()
+
+# SIFT and PolyPhen databases
+nms <- names(coding)
+idx <- mcols(coding)$CONSEQUENCE == "nonsynonymous"
+nonsyn <- coding[idx]
+names(nonsyn) <- nms[idx]
+rsids <- unique(names(nonsyn)[grep("rs", names(nonsyn), fixed=TRUE)])
+length(rsids) # only 8 SNVs are found in dbSNP ("have rs ids"), this is only 9% of the total of 88 SNVs falling in coding regions.
+library(PolyPhen.Hsapiens.dbSNP131)
+pp <- select(PolyPhen.Hsapiens.dbSNP131, keys=rsids)
+pp
+columns(PolyPhen.Hsapiens.dbSNP131)
+keys(PolyPhen.Hsapiens.dbSNP131)
+pp <- select(PolyPhen.Hsapiens.dbSNP131, keys=rsids, columns=c("TRAININGSET", "PREDICTION", "PPH2PROB"))
+pp
+
+
+# Another interesting workflow from Bioconductor page
+# http://bioconductor.org/help/workflows/variants/
+
+# Map the gene ids containing SNVs in coding genes to other databases
+library(org.Hs.eg.db)
+columns(org.Hs.eg.db)
+gene_list_nr<-unique(gene_list)[!is.na(unique(gene_list))]
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="ENZYME") # EC number
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="GENENAME") # Gene name
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="GO") # GO id
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="ONTOLOGY") # GO molecular function
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="PATH") # KEGG PATHWAY
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="PFAM") # PFAM id
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="PMID") # Pubmed ids
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="PROSITE") # PROSITE signatures
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="SYMBOL") # GENE SYMBOL
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="UNIGENE") # UNIGENE id
+select(org.Hs.eg.db, keys=gene_list_nr, keytype="ENTREZID", columns="UNIPROT") # Uniprot accession id
+
+
+# Produce a table to share with Gordon and Euni
+queryid<-coding$QUERYID[!duplicated(coding$QUERYID)]
+chrm<-as.vector(seqnames(coding))[!duplicated(coding$QUERYID)]
+pos<-start(ranges(coding))[!duplicated(coding$QUERYID)]
+strand<-as.vector(strand(coding))[!duplicated(coding$QUERYID)]
+refnt<-as.character(coding$REF)[!duplicated(coding$QUERYID)]
+varnt<-as.vector(unlist(coding$ALT))[!duplicated(coding$QUERYID)]
+refcodon<-as.vector(as.character(coding$REFCODON))[!duplicated(coding$QUERYID)]
+varcodon<-as.vector(as.character(coding$VARCODON))[!duplicated(coding$QUERYID)]
+geneid<-coding$GENEID[!duplicated(coding$QUERYID)]
+symbol<-select(org.Hs.eg.db, keys=coding$GENEID, keytype="ENTREZID", columns="SYMBOL")$SYMBOL[!duplicated(coding$QUERYID)]
+genename<-select(org.Hs.eg.db, keys=coding$GENEID, keytype="ENTREZID", columns="GENENAME")$GENENAME[!duplicated(coding$QUERYID)]
+consequence<-as.vector(coding$CONSEQUENCE[!duplicated(coding$QUERYID)])
+refaa<-as.matrix(coding$REFAA)[!duplicated(coding$QUERYID)]
+varaa<-as.matrix(coding$VARAA)[!duplicated(coding$QUERYID)]
+proteinloc<-as.vector(unlist(coding$PROTEINLOC))[!duplicated(coding$QUERYID)]
+
+mytable<-cbind(chrm, pos, strand, refnt, varnt, refcodon, varcodon, geneid, symbol, genename, consequence, refaa, varaa, proteinloc)
+
+write.table(mytable, "/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/snv_tumour_margin_codingregions.txt", sep="\t", row.names = FALSE)
+
+
+# ensemblVEP package
+# http://www.ensembl.org/info/docs/tools/vep/script/index.html
+library(ensemblVEP)
+library(VariantAnnotation)
+vcf<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf_snv <- vcf[isSNV(vcf)]
+dest <- tempfile()
+writeVcf(vcf_snv, dest)
+gr <- ensemblVEP(file = dest) # it takes too long, > 1 day
+
+
+# And another interesting workflow from Bioconductor page
+# http://bioconductor.org/help/workflows/annotation/Annotating_Genomic_Ranges/
+
+# Annotate by Position
+library(VariantAnnotation)
+library(AnnotationHub)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+vcf<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf_snv <- vcf[isSNV(vcf)]
+txdb_hg19 <- TxDb.Hsapiens.UCSC.hg19.knownGene
+head(seqlevels(txdb_hg19))
+chrms<-paste0("chr", seqlevels(vcf_snv))
+chrms<-replace(chrms, chrms=="chrMT", "chrM")
+vcf_snv <- renameSeqlevels(vcf_snv, chrms)
+intersect(seqlevels(vcf_snv), seqlevels(txdb_hg19))
+seqlengths(vcf_snv)["chrM"]<-seqlengths(txdb_hg19)["chrM"]
+unique(genome(txdb_hg19))
+unique(genome(vcf_snv))
+txdb_hg19 <- keepStandardChromosomes(txdb_hg19)
+vcf_snv <- keepStandardChromosomes(vcf_snv)
+gr_hg19 <- rowRanges(vcf_snv)
+
+hub <- AnnotationHub()
+hub_hg19 <- subset(hub, (hub$species == "Homo sapiens") & (hub$genome == "hg19"))
+length(hub_hg19)
+names(hub_hg19)
+mcols(hub_hg19)
+ov_hg19 <- lapply(1:3, function(i) subsetByOverlaps(hub_hg19[[i]], gr_hg19))
+names(ov_hg19) <- names(hub_hg19)[1:3]
+lapply(ov_hg19, head, n=3)
+
+
+###################
+# tumour vs. blood
+###################
+
+library(VariantAnnotation)
+vcf<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf
+DP <-geno(vcf)$DP
+hist(DP[,1][DP[,1] %in% 1:200])
+hist(DP[,2][DP[,2] %in% 1:200])
+QSS<-info(vcf)$QSS
+hist(QSS[QSS %in% 1:100])
+
+# Intersection between SNVs in tumour vs. margin and SNVs in tumour vs. blood
+library(VariantAnnotation)
+vcf_tvm<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf_tvm_snv <- vcf_tvm[isSNV(vcf_tvm)]
+vcf_tvb<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf_tvb_snv <- vcf_tvb[isSNV(vcf_tvb)]
+ov<-findOverlaps(rowRanges(vcf_tvm_snv),rowRanges(vcf_tvb_snv))
+length(ov) # 6949
+round(100*length(ov)/length(vcf_tvb_snv),2) # 87.55
+vcf_tvm_snv_hits<-rowRanges(vcf_tvm_snv)[queryHits(ov)]
+vcf_tvb_snv_hits<-rowRanges(vcf_tvb_snv)[subjectHits(ov)]
+countOverlaps(rowRanges(vcf_tvm_snv),rowRanges(vcf_tvb_snv))
+
+
+###################
+# margin vs. blood
+###################
+
+library(VariantAnnotation)
+vcf<-readVcf("CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf
+DP <-geno(vcf)$DP
+hist(DP[,1][DP[,1] %in% 1:200])
+hist(DP[,2][DP[,2] %in% 1:200])
+QSS<-info(vcf)$QSS
+hist(QSS[QSS %in% 1:100])
+
+
+
+# Produce a table to share with Dario
+library(VariantAnnotation)
+vcf_tvm<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf_tvm_snv <- vcf_tvm[isSNV(vcf_tvm)]
+vcf_tvb<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf_tvb_snv <- vcf_tvb[isSNV(vcf_tvb)]
+vcf_mvb<-readVcf("CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf_mvb_snv <- vcf_mvb[isSNV(vcf_mvb)]
+
+tvm_snv_chrm<-as.vector(seqnames(rowRanges(vcf_tvm_snv)))
+tvm_snv_pos<-start(ranges(rowRanges(vcf_tvm_snv)))
+tvm_snv_ref<-as.vector(ref(vcf_tvm_snv))
+tvm_snv_alt<-as.vector(unlist(alt(vcf_tvm_snv)))
+tvm_snv<-data.frame(chrm=tvm_snv_chrm, pos=tvm_snv_pos, ref=tvm_snv_ref, alt=tvm_snv_alt, comparison="tvm")
+
+tvb_snv_chrm<-as.vector(seqnames(rowRanges(vcf_tvb_snv)))
+tvb_snv_pos<-start(ranges(rowRanges(vcf_tvb_snv)))
+tvb_snv_ref<-as.vector(ref(vcf_tvb_snv))
+tvb_snv_alt<-as.vector(unlist(alt(vcf_tvb_snv)))
+tvb_snv<-cbind(chrm=tvb_snv_chrm, pos=tvb_snv_pos, ref=tvb_snv_ref, alt=tvb_snv_alt, comparison="tvb")
+
+mvb_snv_chrm<-as.vector(seqnames(rowRanges(vcf_mvb_snv)))
+mvb_snv_pos<-start(ranges(rowRanges(vcf_mvb_snv)))
+mvb_snv_ref<-as.vector(ref(vcf_mvb_snv))
+mvb_snv_alt<-as.vector(unlist(alt(vcf_mvb_snv)))
+mvb_snv<-cbind(chrm=mvb_snv_chrm, pos=mvb_snv_pos, ref=mvb_snv_ref, alt=mvb_snv_alt, comparison="mvb")
+
+merged <- rbind(tvm_snv, tvb_snv, mvb_snv)
+#colnames(merged) <- c("chrm", "pos", "ref", "alt", "comparison")
+
+write.table(merged, "/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/tables/snv_all.txt", sep="\t", row.names = FALSE, quote=FALSE)
+
+
+
+##############
+##############
+# Venn diagrams
+##############
+##############
+
+# Intersection between SNVs in tumour vs. margin, SNVs in tumour vs. blood and SNVs in margin vs. blood
+library(VariantAnnotation)
+vcf_tvm<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf_tvm_snv <- vcf_tvm[isSNV(vcf_tvm)]
+vcf_tvb<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf_tvb_snv <- vcf_tvb[isSNV(vcf_tvb)]
+vcf_mvb<-readVcf("CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf_mvb_snv <- vcf_mvb[isSNV(vcf_mvb)]
+
+ov_tvm_tvb<-findOverlaps(rowRanges(vcf_tvm_snv),rowRanges(vcf_tvb_snv))
+length(ov_tvm_tvb) # 6949
+round(100*length(ov_tvm_tvb)/length(vcf_tvb_snv),2) # 87.55
+
+ov_tvm_mvb<-findOverlaps(rowRanges(vcf_tvm_snv),rowRanges(vcf_mvb_snv))
+length(ov_tvm_mvb) # 0 : no overlap
+
+ov_tvb_mvb<-findOverlaps(rowRanges(vcf_tvb_snv),rowRanges(vcf_mvb_snv))
+length(ov_tvb_mvb) # 194
+round(100*length(ov_tvb_mvb)/length(vcf_mvb_snv),2) # 23.49
+
+
+# install.packages('VennDiagram')
+library(VennDiagram)
+pdf("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_VennDiagram.pdf")
+draw.triple.venn(
+	area1 = length(vcf_tvm_snv), 
+	area2 = length(vcf_tvb_snv), 
+	area3 = length(vcf_mvb_snv), 
+	n12 = length(ov_tvm_tvb), 
+	n23 = length(ov_tvb_mvb), 
+	n13 = length(ov_tvm_mvb), 
+	n123 = 0, 
+	category = c("Tumour vs. Margin", "Tumour vs. Blood", "Margin vs. Blood"), 
+	lty="blank", 
+	fill=c("red", "orange", "green"), 
+	cex=1.25,
+	fontface = "plain",
+	fontfamily = "Helvetica",
+	cat.pos=c(-15,0,15),
+	cat.dist = c(0.065,0.055,0.065),
+	cat.cex=1.5,
+	cat.fontface = "bold",
+	cat.fontfamily = "Helvetica",
+	cat.just = list(c(0.5, 1), c(0.5, 1), c(0.5, 1)),
+	print.mode = c("raw","percent"),
+	direct.area = FALSE)
+
+dev.off()
+
+
+venn.plot <- venn.diagram(
+	x = list(names(ranges(vcf_tvm_snv)), names(ranges(vcf_tvb_snv)), names(ranges(vcf_mvb_snv))),
+	filename = "/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_venn.diagram.svg",
+	height = 3000, 
+	width = 3000, 
+	resolution = 500, 
+	units = "px",
+	category.names = c("Tumour vs. Margin", "Tumour vs. Blood", "Margin vs. Blood"),
+#	direct.area = TRUE,
+#	area.vector = c(length(vcf_tvm_snv) - length(ov_tvm_tvb), length(ov_tvm_tvb), length(vcf_tvb_snv) - length(ov_tvm_tvb) - length(ov_tvb_mvb), length(ov_tvb_mvb), length(vcf_mvb_snv) - length(ov_tvb_mvb))
+	)
+
+
+
+# venneuler
+# install.packages('venneuler') # It does not install due to rJava issues, which I don't have time to sort out now
+library(venneuler)
+
+# venn - gplots
+# install.packages("gplots")
+library(gplots)
+input<-list(names(ranges(vcf_tvm_snv)), names(ranges(vcf_tvb_snv)), names(ranges(vcf_mvb_snv)))
+venn(input)
+
+# Vennerable
+# https://r-forge.r-project.org/scm/viewvc.php/*checkout*/pkg/Vennerable/inst/doc/Venn.pdf?revision=58&root=vennerable
+# install.packages('Vennerable')
+library(Vennerable)
+Vstem <- Venn(SetNames = c("Tumour vs. Margin", "Tumour vs. Blood", "Margin vs. Blood"), Weight = c(`100`=length(vcf_tvm_snv), `010`=length(vcf_tvb_snv), `001`=length(vcf_mvb_snv), `110`= length(ov_tvm_tvb), `101`= length(ov_tvm_mvb), `011`= length(ov_tvb_mvb), `111` = 0))
+pdf("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_Vennerable.pdf")
+plot(Vstem, doWeights = TRUE)
+dev.off()
+
+# Colour and text change, rotations ???
+#C3 <- compute.Venn(Vstem, doWeights = TRUE)
+#gp <- VennThemes(C3)
+#gp[["SetText"]][["Set1"]]$col <-  "red";
+#gp[["SetText"]][["Set2"]]$cex <- 2;
+#plot(C3,gp=gp)
+
+
+###################
+###################
+# SomaticSignatures
+###################
+###################
+
+# Gehring2015
+# http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html
+
+library(SomaticSignatures)
+library(BSgenome.Hsapiens.UCSC.hg19)
+
+vcf_tvm<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_C01.somatic.vcf", "hg19")
+vcf_tvm_snv <- vcf_tvm[isSNV(vcf_tvm)]
+vcf_tvm_snv <- ucsc(vcf_tvm_snv)
+seqlengths(vcf_tvm_snv)["chrM"]<-seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chrM"]
+vcf_tvm_snv_gr <- rowRanges(vcf_tvm_snv)
+vcf_tvm_snv_gr$comparison <- rep("Tumour vs. Margin", length(vcf_tvm_snv_gr))
+
+vcf_tvb<-readVcf("CancerLP2000729-DNA_E01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf_tvb_snv <- vcf_tvb[isSNV(vcf_tvb)]
+vcf_tvb_snv <- ucsc(vcf_tvb_snv)
+seqlengths(vcf_tvb_snv)["chrM"]<-seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chrM"]
+vcf_tvb_snv_gr <- rowRanges(vcf_tvb_snv)
+vcf_tvb_snv_gr$comparison <- rep("Tumour vs. Blood", length(vcf_tvb_snv_gr))
+
+vcf_mvb<-readVcf("CancerLP2000729-DNA_C01_NormalLP2000729-DNA_A01.somatic.vcf", "hg19")
+vcf_mvb_snv <- vcf_mvb[isSNV(vcf_mvb)]
+vcf_mvb_snv <- ucsc(vcf_mvb_snv)
+seqlengths(vcf_mvb_snv)["chrM"]<-seqlengths(BSgenome.Hsapiens.UCSC.hg19)["chrM"]
+vcf_mvb_snv_gr <- rowRanges(vcf_mvb_snv)
+vcf_mvb_snv_gr$comparison <- rep("Margin vs. Blood", length(vcf_mvb_snv_gr))
+
+vcf_all_snv_gr<-c(vcf_tvm_snv_gr, vcf_tvb_snv_gr, vcf_mvb_snv_gr)
+length(vcf_all_snv_gr) # 16932 = 8169+7937+826
+
+all_snv_vr <- VRanges(
+	seqnames = seqnames(vcf_all_snv_gr),
+	ranges = ranges(vcf_all_snv_gr),
+	ref = as.vector(vcf_all_snv_gr$REF),
+	alt = as.vector(unlist(vcf_all_snv_gr$ALT)),
+	seqinfo = seqinfo(vcf_all_snv_gr),
+	comparison = vcf_all_snv_gr$comparison)
+
+sort(table(all_snv_vr$comparison), decreasing = TRUE)
+
+all_snv_motifs <- mutationContext(all_snv_vr, BSgenome.Hsapiens.UCSC.hg19, k = 3, unify = TRUE, check=FALSE) # Try k=1,5, unify = FALSE and check=TRUE
+all_snv_motifs
+all_snv_mm <- motifMatrix(all_snv_motifs, group = "comparison", normalize = FALSE)
+all_snv_mm
+dim(all_snv_mm)
+
+pdf("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_mutationspectrum.pdf")
+plotMutationSpectrum(all_snv_motifs, group="comparison", normalize = FALSE)
+dev.off()
+
+# Two core points:
+# 1 - tumour v margin (tvm) and tumour v blood (tvb) are similar, margin v blood (mvb) is different, margin looks healthy.
+# 2 - The pattern of mutations is similar to patterns found in other glioblastoma datasets found in TCGA: http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html
+
+pdf("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_mutationspectrum_normalised.pdf")
+plotMutationSpectrum(all_snv_motifs, group="comparison", normalize = TRUE)
+dev.off()
+
+# Change order of context
+# https://support.bioconductor.org/p/74432/
+p<-plotMutationSpectrum(all_snv_motifs, group="comparison", normalize = FALSE)
+d = p$data
+c = d$context
+l = unique(c)
+l = l[order(sapply(l, reverse))]
+c = factor(c, levels = l)
+d$context = c
+p$data = d
+p ## new plot
+pdf("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/vcf/figures/snv_mutationspectrum_changeorder.pdf")
+p
+dev.off()
+
+
+
+
+#Clustering
+#install.packages("ggdendro")
+library(ggdendro)
+all_snv_clu_motif <- clusterSpectrum(all_snv_mm, "motif")
+p = ggdendrogram(all_snv_clu_motif, rotate = TRUE)
+p
+all_snv_clu_motif <- clusterSpectrum(all_snv_mm, "sample")
+p = ggdendrogram(all_snv_clu_motif, rotate = TRUE)
+p
+
+#Normalisation
+data(kmers)
+k3wg
+all_snv_mm_norm = normalizeMotifs(all_snv_mm, k3wg)
+
+# The context may also be calculated against the blood sample
+# See 4.9 : http://bioconductor.org/packages/release/bioc/vignettes/SomaticSignatures/inst/doc/SomaticSignatures-vignette.html#orgheadline10
+
+
+#######################
+#######################
+# Base count statistics
+#######################
+#######################
+
+
+# Bash:
+ssh -Y martin03@uk-cri-lcst01
+ssh -Y hpcgate.cri.camres.org
+mkdir /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly
+cp /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk2/LP2000729-DNA_A01/Assembly/* /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly
+cp /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk2/LP2000729-DNA_C01/Assembly/* /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly
+cp /data/sblab_data1/berald01/projects/20150501_methylation_brain/20150914_archive_snp/disk2/LP2000729-DNA_E01/Assembly/* /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly
+
+
+# Python - pysamstats:
+
+from Bio import SeqIO
+import re
+import pysam
+import pysamstats
+
+mybam_blood = pysam.AlignmentFile('/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/LP2000729-DNA_A01.bam')
+mybam_margin = pysam.AlignmentFile('/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/LP2000729-DNA_C01.bam')
+mybam_tumour = pysam.AlignmentFile('/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/LP2000729-DNA_E01.bam')
+myfasta="/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa"
+
+chrm_cgsites={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	iter = re.finditer("CG", str(seq_record.seq))
+	chrm_cgsites[seq_record.id]=[m.start(0) for m in iter]
+
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/basecount_cgsites.txt", "w")
+
+output.write("chrm\tpos\tref\tnA_blood\tnT_blood\tnC_blood\tnG_blood\tnA_margin\tnT_margin\tnC_margin\tnG_margin\tnA_tumour\tnT_tumour\tnC_tumour\tnG_tumour\n")
+
+for chrm in sorted(chrm_cgsites.keys()):
+	for i in chrm_cgsites[chrm]:
+		print chrm, i
+		for rec in pysamstats.stat_variation(alignmentfile=mybam_blood, fafile=myfasta , chrom=chrm, start=i, end=i+1, truncate=True, pad=True, max_depth=100000):
+			ref=rec["ref"]
+			nA_b=rec["A"]
+			nT_b=rec["T"]
+			nC_b=rec["C"]
+			nG_b=rec["G"]
+		for rec in pysamstats.stat_variation(alignmentfile=mybam_margin, fafile=myfasta , chrom=chrm, start=i, end=i+1, truncate=True, pad=True, max_depth=100000):
+			nA_m=rec["A"]
+			nT_m=rec["T"]
+			nC_m=rec["C"]
+			nG_m=rec["G"]
+		for rec in pysamstats.stat_variation(alignmentfile=mybam_tumour, fafile=myfasta , chrom=chrm, start=i, end=i+1, truncate=True, pad=True, max_depth=100000):
+			nA_t=rec["A"]
+			nT_t=rec["T"]
+			nC_t=rec["C"]
+			nG_t=rec["G"]
+		output.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (chrm, str(i), ref, nA_b, nT_b, nC_b, nG_b, nA_m, nT_m, nC_m, nG_m, nA_t, nT_t, nC_t, nG_t))
+		for rec in pysamstats.stat_variation(alignmentfile=mybam_blood, fafile=myfasta , chrom=chrm, start=i+1, end=i+2, truncate=True, pad=True, max_depth=100000):
+			ref=rec["ref"]
+			nA_b=rec["A"]
+			nT_b=rec["T"]
+			nC_b=rec["C"]
+			nG_b=rec["G"]
+		for rec in pysamstats.stat_variation(alignmentfile=mybam_margin, fafile=myfasta , chrom=chrm, start=i+1, end=i+2, truncate=True, pad=True, max_depth=100000):
+			nA_m=rec["A"]
+			nT_m=rec["T"]
+			nC_m=rec["C"]
+			nG_m=rec["G"]
+		for rec in pysamstats.stat_variation(alignmentfile=mybam_tumour, fafile=myfasta , chrom=chrm, start=i+1, end=i+2, truncate=True, pad=True, max_depth=100000):
+			nA_t=rec["A"]
+			nT_t=rec["T"]
+			nC_t=rec["C"]
+			nG_t=rec["G"]
+		output.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (chrm, str(i+1), ref, nA_b, nT_b, nC_b, nG_b, nA_m, nT_m, nC_m, nG_m, nA_t, nT_t, nC_t, nG_t))
+
+
+output.close()
+
+
+
+
+# Python - pysam:
+
+from Bio import SeqIO
+import re
+import pysam
+
+mybam_blood = pysam.AlignmentFile('/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/LP2000729-DNA_A01.bam')
+mybam_margin = pysam.AlignmentFile('/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/LP2000729-DNA_C01.bam')
+mybam_tumour = pysam.AlignmentFile('/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/LP2000729-DNA_E01.bam')
+myfasta="/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa"
+
+chrm_cgsites={}
+
+for seq_record in SeqIO.parse("/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa", "fasta"):
+	print seq_record.id
+	iter = re.finditer("CG", str(seq_record.seq))
+	chrm_cgsites[seq_record.id]=[m.start(0) for m in iter]
+
+
+
+output=open("/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/basecount_cgsites.txt", "w")
+
+output.write("chrm\tpos\tref\tnA_blood\tnC_blood\tnG_blood\tnT_blood\tnA_margin\tnC_margin\tnG_margin\tnT_margin\tnA_tumour\tnC_tumour\tnG_tumour\tnT_tumour\n")
+
+
+for chrm in sorted(chrm_cgsites.keys()):
+	for i in chrm_cgsites[chrm]:
+		print chrm, i
+		blood_i=[str(list(j)[0]) for j in list(mybam_blood.count_coverage(chr=chrm, start=i, stop=i+1, quality_threshold=0))]
+		margin_i=[str(list(j)[0]) for j in list(mybam_margin.count_coverage(chr=chrm, start=i, stop=i+1, quality_threshold=0))]
+		tumour_i=[str(list(j)[0]) for j in list(mybam_tumour.count_coverage(chr=chrm, start=i, stop=i+1, quality_threshold=0))]
+		output.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (chrm, str(i), "C", "\t".join(blood_i), "\t".join(margin_i), "\t".join(tumour_i)))
+		blood_i1=[str(list(j)[0]) for j in list(mybam_blood.count_coverage(chr=chrm, start=i+1, stop=i+2, quality_threshold=0))]
+		margin_i1=[str(list(j)[0]) for j in list(mybam_margin.count_coverage(chr=chrm, start=i+1, stop=i+2, quality_threshold=0))]
+		tumour_i1=[str(list(j)[0]) for j in list(mybam_tumour.count_coverage(chr=chrm, start=i+1, stop=i+2, quality_threshold=0))]
+		output.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (chrm, str(i+1), "G", "\t".join(blood_i1), "\t".join(margin_i1), "\t".join(tumour_i1)))
+
+
+output.close()
+
+
+# Python - pysam - parallelise by file (LP2000729-DNA_A01.bam, LP2000729-DNA_C01.bam, LP2000729-DNA_E01.bam) and chromosome:
+
+from Bio import SeqIO
+import glob
+import itertools
+from subprocess import Popen, PIPE
+
+bamfiles = glob.glob('/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly/*.bam')
+
+myfasta="/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa"
+chrms=[seq_record.id for seq_record in SeqIO.parse(myfasta, "fasta")]
+
+scr="/lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/scripts/basecount_cgsites.py"
+
+for pair in itertools.product(bamfiles, chrms):
+	bamfile=pair[0]
+	chrm=pair[1]
+#	print 'bsub -R "rusage[mem=12000]" -oo "%s.%s.log" "python %s --bamfile %s --chrm %s"' % (bamfile.split(".")[0], chrm, scr, bamfile, chrm)
+	process = Popen('bsub -R "rusage[mem=12000]" -oo "%s.%s.log" "python %s --bamfile %s --chrm %s"' % (bamfile.split(".")[0], chrm, scr, bamfile, chrm), shell=True, stdout=PIPE, stderr=PIPE)
+	stdout, stderr = process.communicate()
+	print stdout
+
+
+
+# Visualise chr1 in the human genome using Dario's SamTextViewer
+cd /lustre/sblab/martin03/repository/20150921_BrainMethylomeRoadMap/Assembly
+ref=/lustre/sblab/martin03/reference_data/genomes/iGenomes/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa
+
+/home/berald01/Tritume/SamTextViewer -i LP2000729-DNA_A01.bam -bs -fa $ref -m 10 -r chr1:1285142
+
+
+
+
+
+
+
+
+
