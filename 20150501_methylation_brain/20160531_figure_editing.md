@@ -399,7 +399,7 @@ prommet<- dcast.data.table(data= proms[gene_name %in% promLst], gene_name ~ libr
 prommet<- prommet[, list(gene_name,
                mar_mc= ear043_M8oxBS,  
                mar_hmc= ear042_M8BS - ear043_M8oxBS,
-               tum_mc= ear044_T3BS,
+               tum_mc= ear045_T3oxBS,
                tum_hmc= ear044_T3BS - ear045_T3oxBS)]
 prommet[, mar_hmc := ifelse(mar_hmc < 0, 0, mar_hmc)]
 prommet[, tum_hmc := ifelse(tum_hmc < 0, 0, tum_hmc)]

@@ -130,10 +130,10 @@ geneLst <- geneset[ncyt == nlibs & ndepth == nlibs, gene_name]
 genes[, pct_met := 100 * (cnt_met/cnt_tot)]
 genemet <- dcast.data.table(data = genes[gene_name %in% geneLst], gene_name ~ library_id, value.var= 'pct_met')
 setnames(genemet, names(genemet), c('gene_name', 'ear042_M8BS', 'ear043_M8oxBS', 'ear044_T3BS', 'ear045_T3oxBS'))
-genemet <- genemet[, list(gene_name, 
-   mar_mc = ear043_M8oxBS, 
-   mar_hmc = ear042_M8BS - ear043_M8oxBS, 
-   tum_mc = ear045_T3oxBS, 
+genemet <- genemet[, list(gene_name,
+   mar_mc = ear043_M8oxBS,
+   mar_hmc = ear042_M8BS - ear043_M8oxBS,
+   tum_mc = ear045_T3oxBS,
    tum_hmc = ear044_T3BS - ear045_T3oxBS)]
 
 genemet[, mar_hmc := ifelse(mar_hmc < 0, 0, mar_hmc)]
@@ -180,7 +180,7 @@ geom_point(size = 0.1, color = densCols(metexpr$diff_hmc, metexpr$tpmLog2FC, col
 geom_hline(yintercept = 0, col= 'black', linetype= 'dashed') +
 geom_vline(xintercept = 0, col= 'black', linetype= 'dashed') +
 theme_classic() +
-xlab("% 5hmC promoter Margin - % 5hmC promoter Tumour") +
+xlab("% 5hmC gene Margin - % 5hmC gene Tumour") +
 ylab(expression("log"[2]*"FC")) +
 theme(axis.text.x = element_text(size=11), axis.text.y = element_text(size=11), axis.title.x = element_text(size=9.5), axis.title.y = element_text(size=13)) +
 geom_label_repel(data = metexpr[diff_hmc < -1], aes(label = gene_name), size=3, force = 1)
@@ -193,7 +193,7 @@ geom_point(size = 0.1, color = densCols(metexpr$diff_hmc, metexpr$tpmLog2FC, col
 geom_hline(yintercept = 0, col= 'black', linetype= 'dashed') +
 geom_vline(xintercept = 0, col= 'black', linetype= 'dashed') +
 theme_classic() +
-xlab("% 5hmC promoter Margin - % 5hmC promoter Tumour") +
+xlab("% 5hmC gene Margin - % 5hmC gene Tumour") +
 ylab(expression("log"[2]*"FC")) +
 theme(axis.text.x = element_text(size=11), axis.text.y = element_text(size=11), axis.title.x = element_text(size=9.5), axis.title.y = element_text(size=13)) +
 
@@ -209,5 +209,3 @@ With names:
 Without names:
 
 <img src="figures/20170426_genebodies_5hmC_difference_log2FC_genenames_ggrepel_nonames.png" width="800">
-
-
