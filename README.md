@@ -8,4 +8,4 @@ Summary details about the analyses are given in the following files:
 - [Bisulfite sequencing](bsseq_processing.md "bsseq_processing.md"): processing and alignment, methylation counting and 5mC/5hmC levels
 - [RNA sequencing](rnaseq_processing.md "rnaseq_processing.md"): transcript alignment, quantification and levels
 
-The scripts developed during the entire project development are available in [20150501_methylation_brain/](20150501_methylation_brain/).
+The scripts written during the development of the project are available in [20150501_methylation_brain/](20150501_methylation_brain/).
