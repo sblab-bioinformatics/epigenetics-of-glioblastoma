@@ -9,3 +9,7 @@ Summary details about the analyses are given in the following files:
 - [RNA sequencing](rnaseq_processing.md "rnaseq_processing.md"): transcript alignment, quantification and levels
 
 The scripts written during the development of the project are available in [20150501_methylation_brain/](20150501_methylation_brain/).
+
+A bayesian approach to estimate 5mC/5hmC is available in [20160727_bayes_fisher_sim](20160727_bayes_fisher_sim/).
+
+An exploration of the levels of 5mC/5hmC in gene bodies ia available in [20170425_genebody_5hmC](20170425_genebody_5hmC/).
